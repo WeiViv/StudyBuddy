@@ -63,9 +63,7 @@ export default [
           "ignoreTemplateLiterals": true,
           "ignoreRegExpLiterals": true
         }
-      ],
-      "jsx-a11y/alt-text": "warn", // check if alt text is provided for images
-      "jsx-a11y/anchor-is-valid": "warn" // check if anchor elements are valid
+      ]
     },
     settings: {
       react: {

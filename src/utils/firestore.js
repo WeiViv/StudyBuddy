@@ -155,9 +155,7 @@ export const updateMatchWithUser = async (userId, matchId, newStatus) => {
       });
 
       // Check if all users have confirmed the match
-      const awaitingConfirmation = updatedUsers.some(
-        (user) => user.status === 'pending'
-      );
+      const awaitingConfirmation = updatedUsers.some((user) => user.status === 'pending');
 
       // Update the match with the new user status and awaitingConfirmation flag
       transaction.update(matchDocRef, {

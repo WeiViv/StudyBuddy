@@ -76,7 +76,7 @@ export const useAuthState = () => {
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => setUser(user),
-      (error) => setError(error)
+      (error) => setError(error),
     );
 
     return () => unsubscribe(); // cleanup on unmount
