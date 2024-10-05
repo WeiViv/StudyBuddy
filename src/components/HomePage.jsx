@@ -1,3 +1,11 @@
+import * as React from 'react';
+
+import { Box } from '@mui/material';
+
 export default function HomePage() {
-  return <div>HomePage</div>;
+  return (
+    <Box>
+      <h1>Home Page</h1>
+    </Box>
+  );
 }

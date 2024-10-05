@@ -10,10 +10,10 @@ import {
 
 import { db } from './firebase'; // import db from the firebase.js
 
-// Create or update user profile in Firestore
+// Check or Create user profile in Firestore
 export const createOrUpdateUserProfile = async (user) => {
   try {
-    const userDocRef = doc(indexedDBLocalPersistence, 'users', user.uid);
+    const userDocRef = doc(db, 'users', user.uid);
     const userSnapshot = await getDoc(userDocRef);
 
     if (!userSnapshot.exists()) {
@@ -47,6 +47,7 @@ export const getUserProfile = async (uid) => {
     const userSnapshot = await getDoc(userDocRef);
 
     if (userSnapshot.exists()) {
+      console.log(userSnapshot.data());
       return userSnapshot.data(); // return user data
     } else {
       console.log('No such user profile found');
@@ -76,7 +77,7 @@ export const updateUserProfile = async (uid, updates) => {
 // });
 
 // ************************************************************
-// Example usage: (Type 3)
+// Example usage: (Type 2)
 // const updates = {};
 
 // if (newName) updates.name = newName;
