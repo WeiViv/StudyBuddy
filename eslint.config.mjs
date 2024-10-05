@@ -1,4 +1,4 @@
-// npm install --save-dev eslint prettier @babel/eslint-parser @babel/plugin-syntax-jsx eslint-config-prettier eslint-plugin-import eslint-plugin-prettier eslint-plugin-react
+// npm install --save-dev eslint prettier @babel/eslint-parser @babel/plugin-syntax-jsx eslint-config-prettier eslint-plugin-import eslint-plugin-prettier eslint-plugin-react eslint-plugin-jsx-a11y
 import reactPlugin from 'eslint-plugin-react';
 import prettierPlugin from 'eslint-plugin-prettier';
 import babelParser from '@babel/eslint-parser';
@@ -63,7 +63,9 @@ export default [
           "ignoreTemplateLiterals": true,
           "ignoreRegExpLiterals": true
         }
-      ]
+      ],
+      "jsx-a11y/alt-text": "warn", // check if alt text is provided for images
+      "jsx-a11y/anchor-is-valid": "warn" // check if anchor elements are valid
     },
     settings: {
       react: {
