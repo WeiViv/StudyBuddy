@@ -1,60 +1,69 @@
-import { doc, setDoc, getDoc, collection, addDoc, updateDoc, arrayUnion, runTransaction } from "firebase/firestore";
-import { db } from './firebase';  // import db from the firebase.js
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  updateDoc,
+  runTransaction,
+} from 'firebase/firestore';
+
+import { db } from './firebase'; // import db from the firebase.js
 
 // Create or update user profile in Firestore
 export const createOrUpdateUserProfile = async (user) => {
   try {
-    const userDocRef = doc(db, "users", user.uid);
+    const userDocRef = doc(indexedDBLocalPersistence, 'users', user.uid);
     const userSnapshot = await getDoc(userDocRef);
 
     if (!userSnapshot.exists()) {
       // Create a new profile if it doesn't exist
       await setDoc(userDocRef, {
-        name: user.displayName || "Anonymous",
-        email: user.email || "",
-        phoneNumber: user.phoneNumber || "", // optional
-        major: "", // optional
-        year: "", // optional
+        name: user.displayName || 'Anonymous',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '', // optional
+        major: '', // optional
+        year: '', // optional
         listOfCourses: [], // empty array, to be updated later
-        description: "", // optional
+        description: '', // optional
         pendingMatch: [], // empty array, to be updated later
         currentMatch: null, // null, to be updated later
-        pastMatch: []
+        pastMatch: [],
       });
-      console.log("User profile created");
+      console.log('User profile created');
     } else {
-      console.log("User profile exists");
-      return userSnapshot.data();  // return user data if it exists
+      console.log('User profile exists');
+      return userSnapshot.data(); // return user data if it exists
     }
   } catch (error) {
-    console.error("Error creating or updating user profile:", error);
+    console.error('Error creating or updating user profile:', error);
   }
 };
 
 // Get user profile by uid
 export const getUserProfile = async (uid) => {
   try {
-    const userDocRef = doc(db, "users", uid);
+    const userDocRef = doc(db, 'users', uid);
     const userSnapshot = await getDoc(userDocRef);
 
     if (userSnapshot.exists()) {
-      return userSnapshot.data();  // return user data
+      return userSnapshot.data(); // return user data
     } else {
-      console.log("No such user profile found");
+      console.log('No such user profile found');
     }
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    console.error('Error fetching user profile:', error);
   }
 };
 
 // Update user profile by uid
 export const updateUserProfile = async (uid, updates) => {
   try {
-    const userDocRef = doc(db, "users", uid);
+    const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, updates);
-    console.log("User profile updated");
+    console.log('User profile updated');
   } catch (error) {
-    console.error("Error updating user profile:", error);
+    console.error('Error updating user profile:', error);
   }
 };
 
@@ -80,49 +89,48 @@ export const updateUserProfile = async (uid, updates) => {
 // Create a new match
 export const createMatch = async (users, time, location, description) => {
   if (!Array.isArray(users) || users.length < 2) {
-    throw new Error("Invalid user list");
+    throw new Error('Invalid user list');
   }
   if (!time || !location || !description) {
-    throw new Error("Missing required match details");
+    throw new Error('Missing required match details');
   }
 
   // Initialize each user's status as 'pending'
   const usersWithStatus = users.map((userId) => ({
     uid: userId,
-    status: "pending",  // initial status; can be 'accepted' or 'declined'
-    joinedAt: new Date().toISOString(),  // optional: track when user joined
+    status: 'pending', // initial status; can be 'accepted' or 'declined'
+    joinedAt: new Date().toISOString(), // optional: track when user joined
   }));
 
   try {
-    const matchRef = await addDoc(collection(db, "matches"), {
+    const matchRef = await addDoc(collection(db, 'matches'), {
       users: usersWithStatus,
       time,
       location,
       description,
-      awaitingConfirmation: true,  // awaiting confirmation by default
-      createdAt: new Date().toISOString(),  // track match creation time
+      awaitingConfirmation: true, // awaiting confirmation by default
+      createdAt: new Date().toISOString(), // track match creation time
     });
-    console.log("Match created with ID: ", matchRef.id);
+    console.log('Match created with ID: ', matchRef.id);
     return matchRef.id;
   } catch (error) {
-    console.error("Error creating match:", error);
+    console.error('Error creating match:', error);
   }
 };
-
 
 // Get match by match id
 export const getMatch = async (matchId) => {
   try {
-    const matchDocRef = doc(db, "matches", matchId);
+    const matchDocRef = doc(db, 'matches', matchId);
     const matchSnapshot = await getDoc(matchDocRef);
 
     if (matchSnapshot.exists()) {
-      return matchSnapshot.data();  // return match data
+      return matchSnapshot.data(); // return match data
     } else {
-      console.log("No such match found");
+      console.log('No such match found');
     }
   } catch (error) {
-    console.error("Error fetching match:", error);
+    console.error('Error fetching match:', error);
   }
 };
 
@@ -130,12 +138,12 @@ export const getMatch = async (matchId) => {
 export const updateMatchWithUser = async (userId, matchId, newStatus) => {
   try {
     await runTransaction(db, async (transaction) => {
-      const matchDocRef = doc(db, "matches", matchId);
-      const userDocRef = doc(db, "users", userId);
+      const matchDocRef = doc(db, 'matches', matchId);
+      const userDocRef = doc(db, 'users', userId);
 
       const matchDoc = await transaction.get(matchDocRef);
       if (!matchDoc.exists()) {
-        throw "Match does not exist!";
+        throw 'Match does not exist!';
       }
 
       const matchData = matchDoc.data();
@@ -147,7 +155,9 @@ export const updateMatchWithUser = async (userId, matchId, newStatus) => {
       });
 
       // Check if all users have confirmed the match
-      const awaitingConfirmation = updatedUsers.some((user) => user.status === "pending");
+      const awaitingConfirmation = updatedUsers.some(
+        (user) => user.status === 'pending'
+      );
 
       // Update the match with the new user status and awaitingConfirmation flag
       transaction.update(matchDocRef, {
@@ -156,12 +166,12 @@ export const updateMatchWithUser = async (userId, matchId, newStatus) => {
       });
 
       // Optionally, update the user's currentMatch if they've confirmed
-      if (newStatus === "confirmed") {
+      if (newStatus === 'confirmed') {
         transaction.update(userDocRef, { currentMatch: matchId });
       }
     });
-    console.log("Transaction successfully committed!");
+    console.log('Transaction successfully committed!');
   } catch (error) {
-    console.log("Transaction failed: ", error);
+    console.log('Transaction failed: ', error);
   }
 };

@@ -1,5 +1,5 @@
 function GroupsPage() {
-  return <div>GroupsPage</div>
+  return <div>GroupsPage</div>;
 }
 
-export default GroupsPage
+export default GroupsPage;

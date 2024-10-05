@@ -1,23 +1,31 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { useEffect, useState } from 'react';
+
+import { getAnalytics } from 'firebase/analytics';
+import { initializeApp } from 'firebase/app';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore } from "firebase/firestore";
-import { useEffect, useState } from 'react';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
 import { createOrUpdateUserProfile } from './firestore';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAtUHyFNDDtuPVwmH9mNCXa6o2qE_kF6OA",
-  authDomain: "studybuddy-8086e.firebaseapp.com",
-  projectId: "studybuddy-8086e",
-  storageBucket: "studybuddy-8086e.appspot.com",
-  messagingSenderId: "677938268288",
-  appId: "1:677938268288:web:b74725ffd461455c76be65",
-  measurementId: "G-EKR2SD2LE8"
+  apiKey: 'AIzaSyAtUHyFNDDtuPVwmH9mNCXa6o2qE_kF6OA',
+  authDomain: 'studybuddy-8086e.firebaseapp.com',
+  projectId: 'studybuddy-8086e',
+  storageBucket: 'studybuddy-8086e.appspot.com',
+  messagingSenderId: '677938268288',
+  appId: '1:677938268288:web:b74725ffd461455c76be65',
+  measurementId: 'G-EKR2SD2LE8',
 };
 
 // Initialize Firebase
@@ -33,9 +41,9 @@ const signInWithGoogle = async () => {
   try {
     const auth = getAuth(app);
     const result = await signInWithPopup(auth, provider);
-    return result.user;  // return user object to handle elsewhere
+    return result.user; // return user object to handle elsewhere
   } catch (error) {
-    console.error("Error during sign-in:", error);
+    console.error('Error during sign-in:', error);
   }
 };
 
@@ -54,7 +62,7 @@ export const handleSignOut = async () => {
     await signOut(auth);
     console.log('Sign out successful');
   } catch (error) {
-    console.error("Error during sign-out:", error);
+    console.error('Error during sign-out:', error);
   }
 };
 
