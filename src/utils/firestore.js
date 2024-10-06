@@ -59,6 +59,7 @@ export const getUserProfile = async (uid) => {
   } catch (error) {
     console.error('Error fetching user profile:', error);
   }
+  return null;
 };
 
 // Update user profile by uid
@@ -113,7 +114,6 @@ export const createMatch = async (users, time, location, description) => {
       time,
       location,
       description,
-      awaitingConfirmation: true, // awaiting confirmation by default
       createdAt: new Date().toISOString(), // track match creation time
     });
     console.log('Match created with ID: ', matchRef.id);

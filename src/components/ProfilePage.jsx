@@ -45,6 +45,9 @@ export default function ProfilePage() {
           year: data.year || '',
           description: data.description || '',
         });
+      } else {
+        handleSignOut();
+        navigate('/');
       }
       setLoading(false);
     };
