@@ -19,14 +19,16 @@ export const checkUserProfile = async (user) => {
     if (!userSnapshot.exists()) {
       // Create a new profile if it doesn't exist
       await setDoc(userDocRef, {
+        uid: user.uid,
+        profilePic: user.photoURL || '',
         name: user.displayName || 'Anonymous',
         email: user.email || '',
-        phoneNumber: user.phoneNumber || '', // optional
-        major: '', // optional
-        year: '', // optional
+        phoneNumber: user.phoneNumber || '',
+        major: '',
+        year: '',
         open: true,
         listOfCourses: [], // empty array, to be updated later
-        description: '', // optional
+        description: '',
         inComingMatches: [],
         outGoingMatches: [],
         currentMatches: [],
@@ -35,6 +37,11 @@ export const checkUserProfile = async (user) => {
       console.log('User profile created');
       return false; // return true if new user profile is created
     } else {
+      // update profile pic if it's changed
+      if (user.photoURL !== userSnapshot.data().profilePic) {
+        await updateDoc(userDocRef, { profilePic: user.photoURL });
+        console.log('User profile pic updated');
+      }
       console.log('User profile exists');
       return true; // return false if user profile already exists
     }
@@ -117,6 +124,7 @@ export const createMatch = async (users, location, description = '') => {
       time: new Date().toISOString(), // track match creation time
       location,
       description,
+      awaitingConfirmation: false, // flag to check if all users have confirmed
       createdAt: new Date().toISOString(), // track match creation time
     });
     console.log('Match created with ID: ', matchRef.id);
