@@ -16,6 +16,14 @@ export default function Header() {
     }
   };
 
+  const signInAndCheckFirstTimeUser = () => {
+    handleSignIn().then((user) => {
+      if (!user) {
+        navigate('/first-time-user');
+      }
+    });
+  };
+
   return (
     <AppBar position="static" sx={{ backgroundColor: '#f5f5f5', color: '#000' }}>
       <Toolbar>
@@ -41,7 +49,7 @@ export default function Header() {
             </IconButton>
           </>
         ) : (
-          <Button color="inherit" onClick={handleSignIn}>
+          <Button color="inherit" onClick={signInAndCheckFirstTimeUser}>
             Sign In
           </Button>
         )}

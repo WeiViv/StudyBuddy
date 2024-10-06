@@ -57,7 +57,7 @@ export default [
       "max-len": [
         "error",
         {
-          "code": 80,
+          "code": 100,
           "ignoreUrls": true,
           "ignoreStrings": true,
           "ignoreTemplateLiterals": true,
