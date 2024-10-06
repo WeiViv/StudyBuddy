@@ -33,7 +33,7 @@ export default function Header() {
         </IconButton>
 
         {/* App Name */}
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>
           StudyBuddy
         </Typography>
 
