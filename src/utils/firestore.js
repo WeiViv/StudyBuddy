@@ -104,9 +104,12 @@ export const createMatch = async (users, location, description = '') => {
   // Initialize each user's status as 'pending'
   const usersWithStatus = users.map((userId) => ({
     uid: userId,
-    status: 'pending', // initial status; can be 'accepted' or 'declined'
+    status: 'pending', // initial status; can be 'confirmed' or 'declined'
     joinedAt: new Date().toISOString(), // optional: track when user joined
   }));
+
+  // For first user in the array, status will be 'confirmed'
+  usersWithStatus[0].status = 'confirmed';
 
   try {
     const matchRef = await addDoc(collection(db, 'matches'), {
