@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
-import { TextField, Button, CircularProgress } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  CircularProgress,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
+import { getAuth, signOut } from 'firebase/auth';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { getUserProfile, updateUserProfile } from '../utils/firestore';
 
 export default function ProfilePage() {
-  const { id } = useParams(); // Get the user's UID from the URL
+  const { id } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -19,9 +28,12 @@ export default function ProfilePage() {
     description: '',
   });
 
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchProfile = async () => {
-      const data = await getUserProfile(id); // Fetch user data by uid
+      const data = await getUserProfile(id);
       if (data) {
         setProfileData(data);
         setFormData({
@@ -40,18 +52,61 @@ export default function ProfilePage() {
   }, [id]);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'phoneNumber') {
+      let formattedValue = value.replace(/\D/g, '');
+      if (formattedValue.length > 3 && formattedValue.length <= 6) {
+        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(3)}`;
+      } else if (formattedValue.length > 6) {
+        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(
+          3,
+          6,
+        )}-${formattedValue.slice(6, 10)}`;
+      }
+      setFormData({ ...formData, [name]: formattedValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const validateForm = () => {
+    let formErrors = {};
+    if (!formData.name) formErrors.name = 'Name is required';
+    if (!formData.major) formErrors.major = 'Major is required';
+
+    if (!formData.email && !formData.phoneNumber) {
+      formErrors.contact = 'Either email or phone number is required';
+    } else {
+      const phoneDigits = formData.phoneNumber.replace(/\D/g, '');
+      if (formData.phoneNumber && phoneDigits.length !== 10) {
+        formErrors.phoneNumber = 'Phone number must be 10 digits';
+      }
+    }
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
   };
 
   const handleUpdateProfile = async () => {
+    if (validateForm()) {
+      try {
+        await updateUserProfile(id, formData);
+        setEditMode(false);
+        window.location.reload();
+      } catch (error) {
+        console.error('Error updating profile:', error);
+      }
+    }
+  };
+
+  const handleSignOut = async () => {
+    const auth = getAuth();
     try {
-      await updateUserProfile(id, formData); // Update user profile in Firestore
-      setEditMode(false); // Disable edit mode after saving
-      console.log('Profile updated successfully');
-      // refresh the page
-      window.location.reload();
+      await signOut(auth);
+      navigate('/');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Error signing out:', error);
     }
   };
 
@@ -71,6 +126,9 @@ export default function ProfilePage() {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            required
+            error={!!errors.name}
+            helperText={errors.name}
           />
           <TextField
             label="Email"
@@ -79,6 +137,8 @@ export default function ProfilePage() {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.contact || !!errors.email}
+            helperText={errors.contact || errors.email}
           />
           <TextField
             label="Phone Number"
@@ -87,6 +147,9 @@ export default function ProfilePage() {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            placeholder="(XXX)-XXX-XXXX"
+            error={!!errors.contact || !!errors.phoneNumber}
+            helperText={errors.contact || errors.phoneNumber || 'Format: (XXX)-XXX-XXXX'}
           />
           <TextField
             label="Major"
@@ -95,15 +158,30 @@ export default function ProfilePage() {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            required
+            error={!!errors.major}
+            helperText={errors.major}
           />
-          <TextField
-            label="Year"
-            name="year"
-            value={formData.year}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="year-label">Year</InputLabel>
+            <Select
+              labelId="year-label"
+              name="year"
+              value={formData.year}
+              onChange={handleInputChange}
+              label="Year"
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value="Freshman">Freshman</MenuItem>
+              <MenuItem value="Sophomore">Sophomore</MenuItem>
+              <MenuItem value="Junior">Junior</MenuItem>
+              <MenuItem value="Senior">Senior</MenuItem>
+            </Select>
+          </FormControl>
+
           <TextField
             label="Description"
             name="description"
@@ -139,9 +217,30 @@ export default function ProfilePage() {
           <p>
             <strong>Description:</strong> {profileData.description}
           </p>
-          <Button variant="contained" onClick={() => setEditMode(true)}>
-            Edit Profile
-          </Button>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              minHeight: '100vh',
+            }}
+          >
+            <Button variant="contained" onClick={() => setEditMode(true)}>
+              Edit Profile
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{
+                mt: 2,
+                backgroundColor: '#D2042D',
+                ':hover': { backgroundColor: '#ff6666' },
+              }}
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
       )}
     </div>
