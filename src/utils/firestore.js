@@ -27,9 +27,9 @@ export const checkUserProfile = async (user) => {
         open: true,
         listOfCourses: [], // empty array, to be updated later
         description: '', // optional
-        inGoingMatches: [], // null, to be updated later
-        outGoingMatches: [], // null, to be updated later
-        currentMatches: null, // null, to be updated later
+        inComingMatches: [],
+        outGoingMatches: [],
+        currentMatches: [],
         pastMatches: [],
       });
       console.log('User profile created');
