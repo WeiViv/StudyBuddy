@@ -24,11 +24,13 @@ export const checkUserProfile = async (user) => {
         phoneNumber: user.phoneNumber || '', // optional
         major: '', // optional
         year: '', // optional
+        open: true,
         listOfCourses: [], // empty array, to be updated later
         description: '', // optional
-        pendingMatch: [], // empty array, to be updated later
-        currentMatch: null, // null, to be updated later
-        pastMatch: [],
+        inGoingMatches: [], // null, to be updated later
+        outGoingMatches: [], // null, to be updated later
+        currentMatches: null, // null, to be updated later
+        pastMatches: [],
       });
       console.log('User profile created');
       return false; // return true if new user profile is created
