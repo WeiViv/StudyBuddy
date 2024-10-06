@@ -93,11 +93,11 @@ export const updateUserProfile = async (uid, updates) => {
 // ************************************************************
 
 // Create a new match
-export const createMatch = async (users, time, location, description) => {
+export const createMatch = async (users, location, description = '') => {
   if (!Array.isArray(users) || users.length < 2) {
     throw new Error('Invalid user list');
   }
-  if (!time || !location || !description) {
+  if (!location) {
     throw new Error('Missing required match details');
   }
 
@@ -111,7 +111,7 @@ export const createMatch = async (users, time, location, description) => {
   try {
     const matchRef = await addDoc(collection(db, 'matches'), {
       users: usersWithStatus,
-      time,
+      time: new Date().toISOString(), // track match creation time
       location,
       description,
       createdAt: new Date().toISOString(), // track match creation time
