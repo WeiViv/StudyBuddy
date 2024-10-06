@@ -14,7 +14,7 @@ import {
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-import { createOrUpdateUserProfile } from './firestore';
+import { checkUserProfile } from './firestore';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -50,9 +50,11 @@ const signInWithGoogle = async () => {
 // Handle Sign-In
 export const handleSignIn = async () => {
   const user = await signInWithGoogle();
+  let alreadyExist = true;
   if (user) {
-    await createOrUpdateUserProfile(user);
+    alreadyExist = await checkUserProfile(user);
   }
+  return alreadyExist;
 };
 
 // Handle Sign-Out

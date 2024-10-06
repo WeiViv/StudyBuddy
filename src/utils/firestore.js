@@ -10,8 +10,8 @@ import {
 
 import { db } from './firebase'; // import db from the firebase.js
 
-// Check or Create user profile in Firestore
-export const createOrUpdateUserProfile = async (user) => {
+// Check user profile in Firestore
+export const checkUserProfile = async (user) => {
   try {
     const userDocRef = doc(db, 'users', user.uid);
     const userSnapshot = await getDoc(userDocRef);
@@ -31,13 +31,15 @@ export const createOrUpdateUserProfile = async (user) => {
         pastMatch: [],
       });
       console.log('User profile created');
+      return false; // return true if new user profile is created
     } else {
       console.log('User profile exists');
-      return userSnapshot.data(); // return user data if it exists
+      return true; // return false if user profile already exists
     }
   } catch (error) {
     console.error('Error creating or updating user profile:', error);
   }
+  return false; // default return false if error occurs
 };
 
 // Get user profile by uid
