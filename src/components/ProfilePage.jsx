@@ -12,6 +12,7 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import { handleSignOut } from '../utils/firebase';
 import { getUserProfile, updateUserProfile } from '../utils/firestore';
 
 export default function ProfilePage() {
