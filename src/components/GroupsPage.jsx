@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Modal } from '@mui/material';
 
+import ProfileCard from './ProfileModal';
 import StudentCard from './UserCard';
 import { useAuthState } from '../utils/firebase';
 import { getUserProfile, resolveMatchRequest, getUserMatches } from '../utils/firestore';
@@ -12,6 +13,8 @@ function GroupsPage() {
   const [incomingRequestProfiles, setIncomingRequestProfiles] = useState([]);
   const [outgoingRequestProfiles, setOutgoingRequestProfiles] = useState([]);
   const [matchProfiles, setMatchProfiles] = useState([]);
+  const [openProfileModal, setOpenProfileModal] = useState(false); // State for modal visibility
+  const [selectedProfile, setSelectedProfile] = useState(null); // State for selected user profile
 
   // Fetch the user's profile
   useEffect(() => {
@@ -64,6 +67,10 @@ function GroupsPage() {
         setIncomingRequestProfiles(incomingProfiles);
         setOutgoingRequestProfiles(outgoingProfiles);
         setMatchProfiles(matches);
+
+        // Update match profiles and set selected profile to null when closing modal
+        const updatedMatches = matches.filter((m) => m.uid !== selectedProfile?.uid);
+        setMatchProfiles(updatedMatches);
       } catch (error) {
         console.error('Error fetching request profiles:', error);
       }
@@ -85,7 +92,15 @@ function GroupsPage() {
     }
   };
 
-  // TODO: Allow user to see matched user's profile in Matches section
+  const handleOpenProfileModal = (profile) => {
+    setSelectedProfile(profile);
+    setOpenProfileModal(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setOpenProfileModal(false);
+  };
+
   return (
     <>
       {userProfile ? (
@@ -97,7 +112,8 @@ function GroupsPage() {
                 const actions = [
                   {
                     label: 'View Profile',
-                    onClick: () => {}, // Placeholder for view profile action
+                    // Allow users to see profile of matches
+                    onClick: () => handleOpenProfileModal(profile),
                   },
                 ];
                 return <StudentCard key={index} studentUserProfile={profile} actions={actions} />;
@@ -108,6 +124,18 @@ function GroupsPage() {
               </Typography>
             )}
           </Stack>
+
+          {/* Modal for displaying the selected profile */}
+          <Modal
+            open={openProfileModal}
+            onClose={handleCloseProfileModal}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+          >
+            <Box sx={{ p: 3 }}>
+              <ProfileCard profile={selectedProfile} />
+            </Box>
+          </Modal>
 
           <h1>Incoming Requests</h1>
           <Stack spacing={2}>
