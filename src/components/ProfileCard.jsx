@@ -58,15 +58,15 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
               {profileData?.name}
             </Typography>
           }
-          subheader={
-            <Typography
-              variant="subtitle2"
-              component="div"
-              sx={{ color: 'rgba(0, 0, 0, 0.7)', fontSize: '1.1rem' }}
-            >
-              {profileData?.major}
-            </Typography>
-          }
+          // subheader={
+          //   <Typography
+          //     variant="subtitle2"
+          //     component="div"
+          //     sx={{ color: 'rgba(0, 0, 0, 0.7)', fontSize: '1.1rem' }}
+          //   >
+          //     {profileData?.major}
+          //   </Typography>
+          // }
         />
         <CardContent>
           <Typography variant="body1" sx={detailsTextStyle}>
@@ -74,6 +74,9 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
           </Typography>
           <Typography variant="body1" sx={detailsTextStyle}>
             <strong>Phone Number:</strong> {profileData?.phoneNumber}
+          </Typography>
+          <Typography variant="body1" sx={detailsTextStyle}>
+            <strong>Major:</strong> {profileData?.major}
           </Typography>
           <Typography variant="body1" sx={detailsTextStyle}>
             <strong>Year:</strong> {profileData?.year}

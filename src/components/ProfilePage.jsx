@@ -211,7 +211,7 @@ export default function ProfilePage() {
               <MenuItem value="Junior">Junior</MenuItem>
               <MenuItem value="Senior">Senior</MenuItem>
               <MenuItem value="Master">Master</MenuItem>
-              <MenuItem value="Ph.D">Ph.D</MenuItem>
+              <MenuItem value="Ph.D">PhD</MenuItem>
             </Select>
           </FormControl>
           <TextField
