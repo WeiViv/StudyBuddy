@@ -30,12 +30,12 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
     >
       <Card
         sx={{
-          backgroundColor: lighten(theme.palette.primary.light, 0.8),
+          backgroundColor: lighten(theme.palette.primary.light, 0.9),
           width: '100%', // Full width for mobile screens
           display: 'flex',
           flexDirection: 'column',
           boxShadow: 3,
-          padding: 0.5,
+          padding: 0.2,
         }}
       >
         <CardHeader
@@ -53,7 +53,7 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
             <Typography
               variant="h5"
               component="div"
-              sx={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: 'bold', fontSize: '1.6rem' }}
+              sx={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: '540', fontSize: '1.6rem' }}
             >
               {profileData?.name}
             </Typography>
