@@ -21,7 +21,7 @@ export default function Header() {
   const signInAndCheckFirstTimeUser = () => {
     handleSignIn().then((user) => {
       if (!user) {
-        navigate('/first-time-user');
+        navigate('/edit-profile');
       }
     });
   };
