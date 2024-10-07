@@ -87,7 +87,20 @@ const EditProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'phoneNumber') {
+      // Format phone number as (XXX)-XXX-XXXX
+      let formattedValue = value.replace(/\D/g, ''); // Remove all non-numeric characters
+      if (formattedValue.length > 3 && formattedValue.length <= 6) {
+        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(3)}`;
+      } else if (formattedValue.length > 6) {
+        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(3, 6)}-${formattedValue.slice(6, 10)}`;
+      } else if (formattedValue.length > 0) {
+        formattedValue = `(${formattedValue}`;
+      }
+      setFormData({ ...formData, [name]: formattedValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -112,7 +125,7 @@ const EditProfile = () => {
     const newErrors = {
       name: !formData.name,
       email: !/^\S+@\S+\.\S+$/.test(formData.email),
-      phoneNumber: !/^\d{10}$/.test(formData.phoneNumber),
+      phoneNumber: formData.phoneNumber.replace(/\D/g, '').length !== 10,
       major: selectedMajors.length === 0,
       year: !formData.year,
       // listOfCourses: !formData.listOfCourses,
