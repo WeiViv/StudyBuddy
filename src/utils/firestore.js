@@ -379,3 +379,46 @@ export const getAllUsers = async () => {
     console.error('Error fetching user profiles:', error);
   }
 };
+
+export const getMatchedUserUids = async (userUid) => {
+  try {
+    const userRef = doc(db, 'users', userUid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      throw new Error('User profile does not exist');
+    }
+
+    const { currentMatches } = userSnapshot.data();
+    if (!currentMatches || currentMatches.length === 0) {
+      return [];
+    }
+
+    const matchedUserUids = new Set();
+
+    // Fetch each match document and collect the UIDs of users in those matches
+    await Promise.all(
+      currentMatches.map(async (matchId) => {
+        const matchRef = doc(db, 'matches', matchId);
+        const matchSnapshot = await getDoc(matchRef);
+
+        if (!matchSnapshot.exists()) {
+          console.error(`Match with ID ${matchId} does not exist`);
+          return;
+        }
+
+        const matchData = matchSnapshot.data();
+        matchData.users.forEach((user) => {
+          if (user.uid !== userUid) {
+            matchedUserUids.add(user.uid);
+          }
+        });
+      }),
+    );
+
+    return Array.from(matchedUserUids);
+  } catch (error) {
+    console.error('Error fetching matched user UIDs:', error);
+    return [];
+  }
+};

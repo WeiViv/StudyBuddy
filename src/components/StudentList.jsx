@@ -4,13 +4,14 @@ import { Box, Stack, Typography } from '@mui/material';
 
 import StudentCard from './UserCard';
 import { useAuthState } from '../utils/firebase';
-import { getAllUsers, getUserProfile, createMatch } from '../utils/firestore';
+import { getAllUsers, getUserProfile, createMatch, getMatchedUserUids } from '../utils/firestore';
 
 export default function StudentList() {
   const [user] = useAuthState();
   const [userProfile, setUserProfile] = useState(null);
   const [studentData, setStudentData] = useState(null);
   const [requestedUsers, setRequestedUsers] = useState(new Set()); // Track requested users
+  const [matchedUserUids, setMatchedUserUids] = useState(new Set()); // Track matched users
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +38,9 @@ export default function StudentList() {
             profile.outgoingMatches.map((match) => match.requestedUser),
           );
           setRequestedUsers(initialRequestedUsers);
+
+          const matchedUids = await getMatchedUserUids(user.uid);
+          setMatchedUserUids(new Set(matchedUids));
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }
@@ -65,7 +69,9 @@ export default function StudentList() {
         <Box>
           <Stack spacing={2}>
             {studentData
-              .filter((profile) => profile.uid !== userProfile.uid)
+              .filter(
+                (profile) => profile.uid !== userProfile.uid && !matchedUserUids.has(profile.uid),
+              )
               .map((profile, index) => {
                 const requested = requestedUsers.has(profile.uid);
 
