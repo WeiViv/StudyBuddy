@@ -4,7 +4,6 @@ import {
   getDoc,
   getDocs,
   collection,
-  addDoc,
   updateDoc,
   runTransaction,
   arrayUnion,
@@ -70,6 +69,23 @@ export const checkUserProfile = async (user) => {
     console.error('Error creating or updating user profile:', error);
   }
   return false; // Default return false if an error occurs
+};
+
+// Function to get the array of majors from Firestore
+export const getMajors = async () => {
+  try {
+    const majorsDocRef = doc(collection(db, 'majorsCourses'), 'majors');
+    const majorsSnapshot = await getDoc(majorsDocRef);
+
+    if (majorsSnapshot.exists()) {
+      return majorsSnapshot.data().majors;
+    } else {
+      console.log('No majors found in Firestore');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching majors:', error);
+  }
 };
 
 // Get user profile by uid

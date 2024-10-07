@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-import { TextField, Button, MenuItem, CircularProgress, Alert } from '@mui/material';
+import { TextField, Button, MenuItem, CircularProgress, Alert, Autocomplete } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuthState } from '../utils/firebase';
-import { getUserProfile, updateUserProfile } from '../utils/firestore';
+import { getUserProfile, updateUserProfile, getMajors } from '../utils/firestore';
 
 const FirstTimeUser = () => {
   // TODO: Don't add empty string if no classes added + don't add empty space behind class names
 
   const [user] = useAuthState(); // Get the authenticated user
   const [loading, setLoading] = useState(true);
+  const [majorsList, setMajorsList] = useState([]);
+  const [selectedMajors, setSelectedMajors] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,6 +50,7 @@ const FirstTimeUser = () => {
             description: data.description || '',
             listOfCourses: data.listOfCourses.join(', ') || '',
           });
+          setSelectedMajors(data.major ? data.major.split(',') : []);
         }
         // check whether the user is a first-time user
         // if not (major and year not ''), redirect to their profile page
@@ -58,13 +61,19 @@ const FirstTimeUser = () => {
       }
     };
 
+    const fetchMajors = async () => {
+      const majorsFromDb = await getMajors();
+      setMajorsList(majorsFromDb);
+    };
+
     fetchProfile();
+    fetchMajors();
   }, [user]);
 
   useEffect(() => {
     // Automatically validate form whenever formData changes
     validateForm();
-  }, [formData]);
+  }, [formData, selectedMajors]);
 
   const years = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Master', 'PhD'];
 
@@ -79,6 +88,7 @@ const FirstTimeUser = () => {
     if (validateForm()) {
       const updatedProfileData = {
         ...formData,
+        major: selectedMajors.join(', '),
         listOfCourses: formData.listOfCourses.split(','),
       };
       if (user && user.uid) {
@@ -95,7 +105,7 @@ const FirstTimeUser = () => {
       name: !formData.name,
       email: !/^\S+@\S+\.\S+$/.test(formData.email),
       phoneNumber: !/^\d{10}$/.test(formData.phoneNumber),
-      major: !formData.major,
+      major: selectedMajors.length === 0,
       year: !formData.year,
       // listOfCourses: !formData.listOfCourses,
     };
@@ -150,16 +160,26 @@ const FirstTimeUser = () => {
           fullWidth
           margin="normal"
         />
-        <TextField
-          label="Major"
-          name="major"
-          type="text"
-          value={formData.major}
-          onChange={handleInputChange}
-          error={errors.major}
-          helperText={errors.major ? 'Major is required' : ''}
-          fullWidth
-          margin="normal"
+        <Autocomplete
+          multiple
+          options={majorsList}
+          getOptionLabel={(option) => option}
+          value={selectedMajors}
+          onChange={(event, newValue) => {
+            if (newValue.length <= 3) {
+              setSelectedMajors(newValue); // max 3
+            }
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Major"
+              error={errors.major}
+              helperText={errors.major ? 'Please select your major(s)' : ''}
+              margin="normal"
+              fullWidth
+            />
+          )}
         />
         <TextField
           label="Year"

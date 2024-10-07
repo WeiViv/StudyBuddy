@@ -8,19 +8,22 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Autocomplete,
 } from '@mui/material';
 import { getAuth, signOut } from 'firebase/auth';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import ProfileCard from './ProfileCard'; // Import the ProfileCard component
 import { handleSignOut } from '../utils/firebase';
-import { getUserProfile, updateUserProfile } from '../utils/firestore';
+import { getUserProfile, updateUserProfile, getMajors } from '../utils/firestore';
 
 export default function ProfilePage() {
   const { id } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [majorsList, setMajorsList] = useState([]);
+  const [selectedMajors, setSelectedMajors] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,14 +49,20 @@ export default function ProfilePage() {
           year: data.year || '',
           description: data.description || '',
         });
+        setSelectedMajors(data.major ? data.major.split(',') : []);
       } else {
         handleSignOut();
         navigate('/');
       }
       setLoading(false);
     };
+    const fetchMajors = async () => {
+      const majorsFromDb = await getMajors();
+      setMajorsList(majorsFromDb);
+    };
 
     fetchProfile();
+    fetchMajors();
   }, [id]);
 
   const handleInputChange = (e) => {
@@ -160,18 +169,27 @@ export default function ProfilePage() {
             error={!!errors.contact || !!errors.phoneNumber}
             helperText={errors.contact || errors.phoneNumber || 'Format: (XXX)-XXX-XXXX'}
           />
-          <TextField
-            label="Major"
-            name="major"
-            value={formData.major}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            required
-            error={!!errors.major}
-            helperText={errors.major}
+          <Autocomplete
+            multiple
+            options={majorsList}
+            getOptionLabel={(option) => option}
+            value={selectedMajors}
+            onChange={(event, newValue) => {
+              if (newValue.length <= 3) {
+                setSelectedMajors(newValue); // max 3
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Major"
+                error={errors.major}
+                helperText={errors.major ? 'Please select your major(s)' : ''}
+                margin="normal"
+                fullWidth
+              />
+            )}
           />
-
           <FormControl fullWidth margin="normal">
             <InputLabel id="year-label">Year</InputLabel>
             <Select
