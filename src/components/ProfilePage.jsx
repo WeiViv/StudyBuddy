@@ -12,6 +12,7 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import ProfileCard from './ProfileCard'; // Import the ProfileCard component
 import { handleSignOut } from '../utils/firebase';
 import { getUserProfile, updateUserProfile } from '../utils/firestore';
 
@@ -74,24 +75,6 @@ export default function ProfilePage() {
     }
   };
 
-  const validateForm = () => {
-    let formErrors = {};
-    if (!formData.name) formErrors.name = 'Name is required';
-    if (!formData.major) formErrors.major = 'Major is required';
-
-    if (!formData.email && !formData.phoneNumber) {
-      formErrors.contact = 'Either email or phone number is required';
-    } else {
-      const phoneDigits = formData.phoneNumber.replace(/\D/g, '');
-      if (formData.phoneNumber && phoneDigits.length !== 10) {
-        formErrors.phoneNumber = 'Phone number must be 10 digits';
-      }
-    }
-
-    setErrors(formErrors);
-    return Object.keys(formErrors).length === 0;
-  };
-
   const handleUpdateProfile = async () => {
     if (validateForm()) {
       try {
@@ -112,6 +95,28 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+
+  const validateForm = () => {
+    let formErrors = {};
+    if (!formData.name) formErrors.name = 'Name is required';
+    if (!formData.major) formErrors.major = 'Major is required';
+
+    if (!formData.email && !formData.phoneNumber) {
+      formErrors.contact = 'Either email or phone number is required';
+    } else {
+      const phoneDigits = formData.phoneNumber.replace(/\D/g, '');
+      if (formData.phoneNumber && phoneDigits.length !== 10) {
+        formErrors.phoneNumber = 'Phone number must be 10 digits';
+      }
+    }
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
   };
 
   if (loading) {
@@ -183,9 +188,10 @@ export default function ProfilePage() {
               <MenuItem value="Sophomore">Sophomore</MenuItem>
               <MenuItem value="Junior">Junior</MenuItem>
               <MenuItem value="Senior">Senior</MenuItem>
+              <MenuItem value="Master">Master</MenuItem>
+              <MenuItem value="PhD">PhD</MenuItem>
             </Select>
           </FormControl>
-
           <TextField
             label="Description"
             name="description"
@@ -202,50 +208,11 @@ export default function ProfilePage() {
           </Button>
         </div>
       ) : (
-        <div>
-          <p>
-            <strong>Name:</strong> {profileData.name}
-          </p>
-          <p>
-            <strong>Email:</strong> {profileData.email}
-          </p>
-          <p>
-            <strong>Phone Number:</strong> {profileData.phoneNumber}
-          </p>
-          <p>
-            <strong>Major:</strong> {profileData.major}
-          </p>
-          <p>
-            <strong>Year:</strong> {profileData.year}
-          </p>
-          <p>
-            <strong>Description:</strong> {profileData.description}
-          </p>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              minHeight: '100vh',
-            }}
-          >
-            <Button variant="contained" onClick={() => setEditMode(true)}>
-              Edit Profile
-            </Button>
-
-            <Button
-              variant="contained"
-              sx={{
-                mt: 2,
-                backgroundColor: '#D2042D',
-                ':hover': { backgroundColor: '#ff6666' },
-              }}
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
+        <ProfileCard
+          profileData={profileData}
+          onEditClick={handleEditClick}
+          onSignOutClick={handleSignOut}
+        />
       )}
     </div>
   );
