@@ -3,16 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Box, Stack } from '@mui/material';
 
 import StudentCard from './StudentCard';
-import { getAllUsers } from '../utils/firestore';
+import { useAuthState } from '../utils/firebase';
+import { getAllUsers, getUserProfile } from '../utils/firestore';
 
 export default function StudentList() {
-  const [data, setData] = useState([]);
+  const [user] = useAuthState();
+
+  const [userProfile, setUserProfile] = useState({});
+  const [studentData, setStudentData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const studentsData = await getAllUsers(); // Call getAllUsers function
-        setData(studentsData);
+        setStudentData(studentsData);
       } catch (error) {
         console.error('Error fetching matches data:', error);
       }
@@ -22,14 +26,29 @@ export default function StudentList() {
   }, []);
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
+    if (user) {
+      const fetchUserProfile = async () => {
+        try {
+          const userProfile = await getUserProfile(user.uid);
+          setUserProfile(userProfile);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      };
+
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    console.log(studentData, userProfile);
+  }, [studentData]);
 
   return (
     <Box>
       <Stack spacing={2}>
-        {data.map((profile, index) => (
-          <StudentCard key={index} userProfile={profile} />
+        {studentData.map((profile, index) => (
+          <StudentCard key={index} userProfile={userProfile} studentUserProfile={profile} />
         ))}
       </Stack>
     </Box>

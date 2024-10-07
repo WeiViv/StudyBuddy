@@ -1,23 +1,46 @@
+import { useEffect, useState } from 'react';
+
 import { Card, CardHeader, CardContent, CardActions, Typography, Button } from '@mui/material';
 
-export default function StudentCard({ userProfile }) {
+import { createMatch } from '../utils/firestore';
+
+export default function StudentCard({ userProfile, studentUserProfile }) {
+  const [requested, setRequested] = useState(null);
+
+  useEffect(() => {
+    if (userProfile && studentUserProfile) {
+      setRequested(
+        userProfile.outgoingMatches.some((match) => match.requestedUser === studentUserProfile.uid),
+      );
+    }
+  }, [userProfile, studentUserProfile]);
+
+  const onMatch = () => {
+    if (requested !== null && !requested) {
+      createMatch([studentUserProfile.uid, userProfile.uid], 'University Library');
+      setRequested(true);
+    }
+  };
+
+  // TODO: Show loading indicator while requested is being calculated
   return (
     <Card>
       <CardHeader
         sx={{ pb: 0 }}
         title={
           <Typography variant="h5" component="h2">
-            {userProfile.name}
+            {studentUserProfile.name}
           </Typography>
         }
         subheader={
           <>
             <Typography color="textSecondary" component="h6">
-              {userProfile.major} ({userProfile.year})
+              {studentUserProfile.major} ({studentUserProfile.year})
             </Typography>
-            {userProfile.listOfCourses.length > 0 && userProfile.listOfCourses[0] != '' ? (
+            {studentUserProfile.listOfCourses.length > 0 &&
+            studentUserProfile.listOfCourses[0] != '' ? (
               <Typography color="textSecondary" component="h6">
-                Courses: {userProfile.listOfCourses.join(',')}
+                Courses: {studentUserProfile.listOfCourses.join(',')}
               </Typography>
             ) : (
               <></>
@@ -26,11 +49,16 @@ export default function StudentCard({ userProfile }) {
         }
       />
       <CardContent>
-        <Typography>{userProfile.description}</Typography>
+        <Typography>{studentUserProfile.description}</Typography>
       </CardContent>
       <CardActions sx={{ justifyContent: 'flex-end' }}>
-        <Button size="small" variant={'contained'} color={'primary'}>
-          Match
+        <Button
+          size="small"
+          variant={requested ? 'outlined' : 'contained'}
+          color={requested ? 'default' : 'primary'}
+          onClick={onMatch}
+        >
+          {requested ? 'Requested' : 'Match'}
         </Button>
       </CardActions>
     </Card>

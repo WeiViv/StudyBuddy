@@ -7,6 +7,7 @@ import {
   addDoc,
   updateDoc,
   runTransaction,
+  arrayUnion,
 } from 'firebase/firestore';
 
 import { db } from './firebase'; // import db from the firebase.js
@@ -28,8 +29,8 @@ export const checkUserProfile = async (user) => {
       open: true,
       listOfCourses: [], // empty array, to be updated later
       description: '',
-      inComingMatches: [],
-      outGoingMatches: [],
+      incomingMatches: [],
+      outgoingMatches: [],
       currentMatches: [],
       pastMatches: [],
     };
@@ -77,7 +78,6 @@ export const getUserProfile = async (uid) => {
     const userSnapshot = await getDoc(userDocRef);
 
     if (userSnapshot.exists()) {
-      console.log(userSnapshot.data());
       return userSnapshot.data(); // return user data
     } else {
       console.log('No such user profile found');
@@ -138,14 +138,49 @@ export const createMatch = async (users, location, description = '') => {
   usersWithStatus[0].status = 'confirmed';
 
   try {
-    const matchRef = await addDoc(collection(db, 'matches'), {
-      users: usersWithStatus,
-      time: new Date().toISOString(), // track match creation time
-      location,
-      description,
-      awaitingConfirmation: false, // flag to check if all users have confirmed
-      createdAt: new Date().toISOString(), // track match creation time
+    const matchRef = doc(collection(db, 'matches'));
+
+    await runTransaction(db, async (transaction) => {
+      const userProfiles = await Promise.all(
+        usersWithStatus.map(async (user) => {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnapshot = await transaction.get(userRef);
+
+          if (!userSnapshot.exists()) {
+            throw new Error(`User profile for ${user.uid} does not exist`);
+          }
+
+          return { uid: user.uid, ref: userRef, profile: userSnapshot.data() };
+        }),
+      );
+
+      // Set the match document
+      transaction.set(matchRef, {
+        users: usersWithStatus,
+        time: new Date().toISOString(), // track match creation time
+        location,
+        description,
+        awaitingConfirmation: false, // flag to check if all users have confirmed
+        createdAt: new Date().toISOString(), // track match creation time
+      });
+
+      // Update the incomingMatches of the first user
+      transaction.update(userProfiles[0].ref, {
+        incomingMatches: arrayUnion({
+          requestingUser: userProfiles[1].uid,
+          matchId: matchRef.id,
+        }),
+      });
+
+      // Update the outgoingMatches of the second user
+      transaction.update(userProfiles[1].ref, {
+        outgoingMatches: arrayUnion({
+          requestedUser: userProfiles[0].uid,
+          matchId: matchRef.id,
+        }),
+      });
     });
+
     console.log('Match created with ID: ', matchRef.id);
     return matchRef.id;
   } catch (error) {
