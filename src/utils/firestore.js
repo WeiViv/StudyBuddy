@@ -2,6 +2,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
   collection,
   addDoc,
   updateDoc,
@@ -16,39 +17,57 @@ export const checkUserProfile = async (user) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userSnapshot = await getDoc(userDocRef);
 
+    const defaultProfile = {
+      uid: user.uid,
+      profilePic: user.photoURL || '',
+      name: user.displayName || 'Anonymous',
+      email: user.email || '',
+      phoneNumber: user.phoneNumber || '',
+      major: '',
+      year: '',
+      open: true,
+      listOfCourses: [], // empty array, to be updated later
+      description: '',
+      inComingMatches: [],
+      outGoingMatches: [],
+      currentMatches: [],
+      pastMatches: [],
+    };
+
     if (!userSnapshot.exists()) {
       // Create a new profile if it doesn't exist
-      await setDoc(userDocRef, {
-        uid: user.uid,
-        profilePic: user.photoURL || '',
-        name: user.displayName || 'Anonymous',
-        email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
-        major: '',
-        year: '',
-        open: true,
-        listOfCourses: [], // empty array, to be updated later
-        description: '',
-        inComingMatches: [],
-        outGoingMatches: [],
-        currentMatches: [],
-        pastMatches: [],
-      });
+      await setDoc(userDocRef, defaultProfile);
       console.log('User profile created');
-      return false; // return true if new user profile is created
+      return false; // Return false if a new user profile is created
     } else {
-      // update profile pic if it's changed
-      if (user.photoURL !== userSnapshot.data().profilePic) {
-        await updateDoc(userDocRef, { profilePic: user.photoURL });
-        console.log('User profile pic updated');
+      const existingProfile = userSnapshot.data();
+      const updates = {};
+
+      // Check if each attribute in the schema is present and matches the default
+      for (const key in defaultProfile) {
+        if (!(key in existingProfile) || existingProfile[key] === undefined) {
+          // Add missing or undefined attributes to updates
+          updates[key] = defaultProfile[key];
+        } else if (key === 'profilePic' && user.photoURL !== existingProfile.profilePic) {
+          // Check if the profile picture needs updating
+          updates.profilePic = user.photoURL;
+        }
       }
-      console.log('User profile exists');
-      return true; // return false if user profile already exists
+
+      // If there are any updates, update the user profile
+      if (Object.keys(updates).length > 0) {
+        await updateUserProfile(user.uid, updates);
+        console.log('User profile updated with missing attributes');
+      } else {
+        console.log('User profile exists and is up-to-date');
+      }
+
+      return true; // Return true if the user profile already exists
     }
   } catch (error) {
     console.error('Error creating or updating user profile:', error);
   }
-  return false; // default return false if error occurs
+  return false; // Default return false if an error occurs
 };
 
 // Get user profile by uid
@@ -187,5 +206,24 @@ export const updateMatchWithUser = async (userId, matchId, newStatus) => {
     console.log('Transaction successfully committed!');
   } catch (error) {
     console.log('Transaction failed: ', error);
+  }
+};
+
+// Get array of all users
+
+export const getAllUsers = async () => {
+  try {
+    const usersCollectionRef = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersCollectionRef);
+
+    const users = [];
+
+    usersSnapshot.forEach((doc) => {
+      users.push(doc.data());
+    });
+
+    return users;
+  } catch (error) {
+    console.error('Error fetching user profiles:', error);
   }
 };
