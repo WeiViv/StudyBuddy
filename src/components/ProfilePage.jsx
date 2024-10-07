@@ -65,18 +65,22 @@ export default function ProfilePage() {
     fetchMajors();
   }, [id]);
 
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+
+  // Handle Input Change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'phoneNumber') {
-      let formattedValue = value.replace(/\D/g, '');
+      // Format phone number as (XXX)-XXX-XXXX
+      let formattedValue = value.replace(/\D/g, ''); // Remove all non-numeric characters
       if (formattedValue.length > 3 && formattedValue.length <= 6) {
         formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(3)}`;
       } else if (formattedValue.length > 6) {
-        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(
-          3,
-          6,
-        )}-${formattedValue.slice(6, 10)}`;
+        formattedValue = `(${formattedValue.slice(0, 3)})-${formattedValue.slice(3, 6)}-${formattedValue.slice(6, 10)}`;
+      } else if (formattedValue.length > 0) {
+        formattedValue = `(${formattedValue}`;
       }
       setFormData({ ...formData, [name]: formattedValue });
     } else {
@@ -207,7 +211,7 @@ export default function ProfilePage() {
               <MenuItem value="Junior">Junior</MenuItem>
               <MenuItem value="Senior">Senior</MenuItem>
               <MenuItem value="Master">Master</MenuItem>
-              <MenuItem value="PhD">PhD</MenuItem>
+              <MenuItem value="Ph.D">Ph.D</MenuItem>
             </Select>
           </FormControl>
           <TextField
