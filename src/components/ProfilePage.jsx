@@ -41,7 +41,7 @@ export default function ProfilePage() {
       <ProfileCard
         profileData={profileData}
         onEditClick={handleEditClick}
-        onSignOutClick={handleSignOut}
+        onSignOutClick={() => handleSignOut(navigate)}
       />
     </div>
   );

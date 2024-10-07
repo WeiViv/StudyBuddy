@@ -58,12 +58,12 @@ export const handleSignIn = async () => {
 };
 
 // Handle Sign-Out
-export const handleSignOut = async () => {
+export const handleSignOut = async (navigate) => {
   try {
     const auth = getAuth(app);
     await signOut(auth);
-    navigate('/');
     console.log('Sign out successful');
+    navigate('/'); // Use navigate here
   } catch (error) {
     console.error('Error during sign-out:', error);
   }
