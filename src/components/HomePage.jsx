@@ -7,7 +7,6 @@ import StudentList from './StudentList';
 export default function HomePage() {
   return (
     <Box>
-      <h1>Home Page</h1>
       <StudentList />
     </Box>
   );

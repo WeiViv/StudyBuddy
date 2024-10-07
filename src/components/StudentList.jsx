@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
-import StudentCard from './StudentCard';
+import StudentCard from './UserCard';
 import { useAuthState } from '../utils/firebase';
-import { getAllUsers, getUserProfile } from '../utils/firestore';
+import { getAllUsers, getUserProfile, createMatch } from '../utils/firestore';
 
 export default function StudentList() {
   const [user] = useAuthState();
-
-  const [userProfile, setUserProfile] = useState({});
-  const [studentData, setStudentData] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [studentData, setStudentData] = useState(null);
+  const [requestedUsers, setRequestedUsers] = useState(new Set()); // Track requested users
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,8 +29,14 @@ export default function StudentList() {
     if (user) {
       const fetchUserProfile = async () => {
         try {
-          const userProfile = await getUserProfile(user.uid);
-          setUserProfile(userProfile);
+          const profile = await getUserProfile(user.uid);
+          setUserProfile(profile);
+
+          // Initialize the set of requested users from the user's profile
+          const initialRequestedUsers = new Set(
+            profile.outgoingMatches.map((match) => match.requestedUser),
+          );
+          setRequestedUsers(initialRequestedUsers);
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }
@@ -40,17 +46,54 @@ export default function StudentList() {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log(studentData, userProfile);
-  }, [studentData]);
+  const handleMatch = async (studentUserProfile) => {
+    try {
+      await createMatch([studentUserProfile.uid, userProfile.uid], 'University Library');
 
+      // Update local state to reflect the match request
+      setRequestedUsers((prev) => new Set(prev).add(studentUserProfile.uid));
+    } catch (error) {
+      console.error('Error creating match:', error);
+    }
+  };
+
+  // TODO: Don't display card if student has sent request to user or if already matched
+  // TODO (Question): Should we show student card if user already sent request to that student?
   return (
-    <Box>
-      <Stack spacing={2}>
-        {studentData.map((profile, index) => (
-          <StudentCard key={index} userProfile={userProfile} studentUserProfile={profile} />
-        ))}
-      </Stack>
-    </Box>
+    <>
+      {userProfile && studentData ? (
+        <Box>
+          <Stack spacing={2}>
+            {studentData
+              .filter((profile) => profile.uid !== userProfile.uid)
+              .map((profile, index) => {
+                const requested = requestedUsers.has(profile.uid);
+
+                const actions = requested
+                  ? [
+                      {
+                        label: 'Requested',
+                        variant: 'outlined',
+                        color: 'default',
+                        onClick: () => {},
+                      },
+                    ]
+                  : [
+                      {
+                        label: 'Match',
+                        onClick: () => handleMatch(profile),
+                      },
+                    ];
+
+                return <StudentCard key={index} studentUserProfile={profile} actions={actions} />;
+              })}
+          </Stack>
+        </Box>
+      ) : (
+        <Typography variant="h6" color="textSecondary" align="center">
+          Please log in to view.
+        </Typography>
+      )}
+    </>
   );
 }
