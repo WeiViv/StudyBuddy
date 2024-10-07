@@ -30,7 +30,7 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
     >
       <Card
         sx={{
-          backgroundColor: lighten(theme.palette.primary.light, 0.9),
+          backgroundColor: lighten(theme.palette.primary.light, 0.8),
           width: '100%', // Full width for mobile screens
           display: 'flex',
           flexDirection: 'column',
@@ -42,7 +42,7 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
           avatar={
             <Avatar
               sx={{ bgcolor: '#4E2A84', width: 56, height: 56 }}
-              src={profileData?.photoURL || ''} // Use Google profile picture if available
+              src={profileData?.profilePic || ''} // Use Google profile picture if available
               alt={profileData?.name}
             >
               {!profileData?.photoURL && (profileData?.name?.[0] || '')}{' '}

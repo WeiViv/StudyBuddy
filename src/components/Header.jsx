@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Toolbar, Typography, IconButton, Avatar, Button } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuthState, handleSignIn, handleSignOut } from '../utils/firebase'; // Firebase functions
@@ -9,6 +10,7 @@ import { useAuthState, handleSignIn, handleSignOut } from '../utils/firebase'; /
 export default function Header() {
   const [user] = useAuthState();
   const navigate = useNavigate(); // Initialize the navigate hook
+  const theme = useTheme();
 
   const handleProfileClick = () => {
     if (user) {
@@ -25,7 +27,7 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#f5f5f5', color: '#000' }}>
+    <AppBar position="sticky" sx={{ backgroundColor: theme.palette.primary.light, color: '#000' }}>
       <Toolbar>
         {/* Menu Icon (Left) */}
         <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
@@ -33,7 +35,10 @@ export default function Header() {
         </IconButton>
 
         {/* App Name */}
-        <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1, textAlign: 'center', fontWeight: '600', fontSize: '1.4rem' }}
+        >
           StudyBuddy
         </Typography>
 

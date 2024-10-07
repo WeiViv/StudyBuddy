@@ -15,7 +15,7 @@ export default function StudentCard({ studentUserProfile, actions }) {
   return (
     <Card
       sx={{
-        backgroundColor: lighten(theme.palette.primary.light, 0.9),
+        backgroundColor: lighten(theme.palette.primary.light, 0.8),
       }}
     >
       <CardHeader
@@ -27,11 +27,11 @@ export default function StudentCard({ studentUserProfile, actions }) {
         avatar={
           <Avatar
             sx={{ marginTop: '-4px', bgcolor: '#4E2A84', width: 56, height: 56 }}
-            src={studentUserProfile?.photoURL || ''} // Use Google profile picture if available
+            src={studentUserProfile?.profilePic || ''} // Use Google profile picture if available
             alt={studentUserProfile?.name}
           >
             {!studentUserProfile?.photoURL && (studentUserProfile?.name?.[0] || '')}{' '}
-            {/* Display student's initial if there is no Google photo */}
+            {/* Display student's initial if for some reason the Google photo URL was not stored */}
           </Avatar>
         }
         title={
