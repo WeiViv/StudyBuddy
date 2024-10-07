@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
-import FirstTimeUser from './components/FirstTimeUser';
+import EditProfile from './components/EditProfile';
 import Footer from './components/Footer';
 import GroupsPage from './components/GroupsPage';
 import Header from './components/Header';
@@ -16,7 +16,7 @@ const AppContent = ({ currentPage, setCurrentPage }) => {
   const location = useLocation(); // Hook to get current path
 
   // Check if the current page is the first-time user page
-  const isFirstTimeUserPage = location.pathname === '/first-time-user';
+  const isEditProfilePage = location.pathname === '/edit-profile';
 
   const theme = createTheme({
     palette: {
@@ -36,19 +36,17 @@ const AppContent = ({ currentPage, setCurrentPage }) => {
     <>
       <ThemeProvider theme={theme}>
         {/* Conditionally render based on the current route */}
-        {!isFirstTimeUserPage && <Header />}
+        {!isEditProfilePage && <Header />}
         <div className="container">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="groups" element={<GroupsPage />} />
             <Route path="messages" element={<div>TBD</div>} />
             <Route path="profile/:id" element={<ProfilePage />} />
-            <Route path="first-time-user" element={<FirstTimeUser />} />
+            <Route path="edit-profile" element={<EditProfile />} />
           </Routes>
         </div>
-        {!isFirstTimeUserPage && (
-          <Footer currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        )}
+        {!isEditProfilePage && <Footer currentPage={currentPage} setCurrentPage={setCurrentPage} />}
       </ThemeProvider>
     </>
   );
