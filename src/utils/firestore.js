@@ -8,6 +8,7 @@ import {
   updateDoc,
   runTransaction,
   arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 
 import { db } from './firebase'; // import db from the firebase.js
@@ -89,16 +90,6 @@ export const getUserProfile = async (uid) => {
 };
 
 // Update user profile by uid
-export const updateUserProfile = async (uid, updates) => {
-  try {
-    const userDocRef = doc(db, 'users', uid);
-    await updateDoc(userDocRef, updates);
-    console.log('User profile updated');
-  } catch (error) {
-    console.error('Error updating user profile:', error);
-  }
-};
-
 // ************************************************************
 // Example usage: (Type 1)
 // await updateUserProfile(user.uid, {
@@ -117,6 +108,15 @@ export const updateUserProfile = async (uid, updates) => {
 
 // await updateUserProfile(user.uid, updates);
 // ************************************************************
+export const updateUserProfile = async (uid, updates) => {
+  try {
+    const userDocRef = doc(db, 'users', uid);
+    await updateDoc(userDocRef, updates);
+    console.log('User profile updated');
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+  }
+};
 
 // Create a new match
 export const createMatch = async (users, location, description = '') => {
@@ -204,6 +204,108 @@ export const getMatch = async (matchId) => {
   }
 };
 
+// Get all user matches
+export const getUserMatches = async (uid) => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      throw new Error('User profile does not exist');
+    }
+
+    const { currentMatches } = userSnapshot.data();
+    if (!currentMatches || currentMatches.length === 0) {
+      return [];
+    }
+
+    // Fetch profiles for each match in the "matches" collection
+    const matchProfiles = await Promise.all(
+      currentMatches.map(async (matchId) => {
+        const matchRef = doc(db, 'matches', matchId);
+        const matchSnapshot = await getDoc(matchRef);
+
+        if (!matchSnapshot.exists()) {
+          console.error(`Match with ID ${matchId} does not exist`);
+          return null;
+        }
+
+        const matchData = matchSnapshot.data();
+        const otherUsers = matchData.users.filter((user) => user.uid !== uid);
+
+        // Fetch profiles for all other users in the match
+        const profiles = await Promise.all(
+          otherUsers.map(async (user) => {
+            const matchUserRef = doc(db, 'users', user.uid);
+            const matchUserSnapshot = await getDoc(matchUserRef);
+            if (matchUserSnapshot.exists()) {
+              return { ...matchUserSnapshot.data(), uid: user.uid };
+            }
+            return null;
+          }),
+        );
+
+        // Filter out any null values (in case some match profiles couldn't be fetched)
+        return profiles.filter((profile) => profile !== null);
+      }),
+    );
+
+    // Flatten the array to get a single list of profiles and filter out any empty arrays
+    return matchProfiles.flat().filter((profile) => profile !== null);
+  } catch (error) {
+    console.error('Error fetching user matches:', error);
+    return [];
+  }
+};
+
+export const resolveMatchRequest = async (requestedUserUid, requestingUserUid, matchId, accept) => {
+  try {
+    await runTransaction(db, async (transaction) => {
+      const requestedUserRef = doc(db, 'users', requestedUserUid);
+      const requestingUserRef = doc(db, 'users', requestingUserUid);
+      const matchRef = doc(db, 'matches', matchId);
+
+      // Get the profiles of both users
+      const requestedUserSnapshot = await transaction.get(requestedUserRef);
+      const requestingUserSnapshot = await transaction.get(requestingUserRef);
+
+      if (!requestedUserSnapshot.exists() || !requestingUserSnapshot.exists()) {
+        throw new Error('One or both user profiles do not exist');
+      }
+
+      // Remove relevant incoming match from requestedUser's profile
+      const incomingMatchToRemove = { requestingUser: requestingUserUid, matchId: matchId };
+      transaction.update(requestedUserRef, {
+        incomingMatches: arrayRemove(incomingMatchToRemove),
+      });
+
+      // Remove relevant outgoing match from requestingUser's profile
+      const outgoingMatchToRemove = { requestedUser: requestedUserUid, matchId: matchId };
+      transaction.update(requestingUserRef, {
+        outgoingMatches: arrayRemove(outgoingMatchToRemove),
+      });
+
+      // If the request is accepted, add the match to both users' currentMatches
+      if (accept) {
+        transaction.update(requestedUserRef, {
+          currentMatches: arrayUnion(matchId),
+        });
+
+        transaction.update(requestingUserRef, {
+          currentMatches: arrayUnion(matchId),
+        });
+      } else {
+        // If the request is denied, delete the match document
+        transaction.delete(matchRef);
+      }
+    });
+
+    console.log(`Match request resolved successfully (${accept ? 'accepted' : 'denied'})`);
+  } catch (error) {
+    console.error('Error resolving match request:', error);
+  }
+};
+
 // Update match with user confirmation
 export const updateMatchWithUser = async (userId, matchId, newStatus) => {
   try {
@@ -245,7 +347,6 @@ export const updateMatchWithUser = async (userId, matchId, newStatus) => {
 };
 
 // Get array of all users
-
 export const getAllUsers = async () => {
   try {
     const usersCollectionRef = collection(db, 'users');
