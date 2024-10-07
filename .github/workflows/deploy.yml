@@ -1,0 +1,43 @@
+name: Deploy React + Vite App
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Use lts version of node
+          node-version: 'lts/*'
+      - name: Cache dependencies 📦
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies with npm
+        run: npm install
+      - name: Vite build 🏗️
+        run: npm run build
+      - name: Deploy to static branch 🚀
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          # Do not keep files from the previous run
+          keep_files: false
+          # Deploy to the static branch
+          publish_branch: static
