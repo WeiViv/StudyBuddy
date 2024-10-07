@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { Box, Stack, Typography, Modal } from '@mui/material';
 
-import ProfileCard from './ProfileModal';
+import ProfileCard from './ProfileCard';
 import StudentCard from './UserCard';
 import { useAuthState } from '../utils/firebase';
 import { getUserProfile, resolveMatchRequest, getUserMatches } from '../utils/firestore';
@@ -133,7 +133,7 @@ function GroupsPage() {
             aria-describedby="modal-description"
           >
             <Box sx={{ p: 3 }}>
-              <ProfileCard profile={selectedProfile} />
+              <ProfileCard profileData={selectedProfile} />
             </Box>
           </Modal>
 

@@ -91,17 +91,21 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
             padding: 2,
           }}
         >
-          <Button variant="contained" onClick={onEditClick} sx={{ marginRight: 1 }}>
-            Edit Profile
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{ backgroundColor: '#D2042D', ':hover': { backgroundColor: '#ff6666' } }}
-            onClick={onSignOutClick}
-          >
-            Sign Out
-          </Button>
+          {onEditClick && (
+            <Button variant="contained" onClick={onEditClick} sx={{ marginRight: 1 }}>
+              Edit Profile
+            </Button>
+          )}
+          {onSignOutClick && (
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ backgroundColor: '#D2042D', ':hover': { backgroundColor: '#ff6666' } }}
+              onClick={onSignOutClick}
+            >
+              Sign Out
+            </Button>
+          )}
         </CardActions>
       </Card>
     </div>
