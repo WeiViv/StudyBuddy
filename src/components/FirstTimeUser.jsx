@@ -7,6 +7,8 @@ import { useAuthState } from '../utils/firebase';
 import { getUserProfile, updateUserProfile } from '../utils/firestore';
 
 const FirstTimeUser = () => {
+  // TODO: Don't add empty string if no classes added + don't add empty space behind class names
+
   const [user] = useAuthState(); // Get the authenticated user
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
