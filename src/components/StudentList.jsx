@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Autocomplete, TextField } from '@mui/material';
 
 import StudentCard from './UserCard';
 import { useAuthState } from '../utils/firebase';
-import { getAllUsers, getUserProfile, createMatch, getMatchedUserUids } from '../utils/firestore';
+import {
+  getAllUsers,
+  getUserProfile,
+  createMatch,
+  getMatchedUserUids,
+  getMajors,
+} from '../utils/firestore';
 
 export default function StudentList() {
   const [user] = useAuthState();
@@ -12,6 +18,9 @@ export default function StudentList() {
   const [studentData, setStudentData] = useState(null);
   const [requestedUsers, setRequestedUsers] = useState(new Set()); // Track requested users
   const [matchedUserUids, setMatchedUserUids] = useState(new Set()); // Track matched users
+  const [selectedMajors, setSelectedMajors] = useState([]); // State for selected majors
+  const [majorsList, setMajorsList] = useState([]); // List of majors from Firestore
+  const [selectedYears, setSelectedYears] = useState([]); // State for selected years
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +59,19 @@ export default function StudentList() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        const majors = await getMajors(); // Fetch majors from Firestore
+        setMajorsList(majors);
+      } catch (error) {
+        console.error('Error fetching majors:', error);
+      }
+    };
+
+    fetchMajors();
+  }, []);
+
   const handleMatch = async (studentUserProfile) => {
     try {
       await createMatch([studentUserProfile.uid, userProfile.uid], 'University Library');
@@ -67,10 +89,51 @@ export default function StudentList() {
     <>
       {userProfile && studentData ? (
         <Box>
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 64, // Stick at the top of the screen, adjust as needed if there's a header
+              zIndex: 1000, // Ensure it's on top of other elements
+              backgroundColor: 'white', // Ensure background covers other content
+              display: 'flex',
+              gap: 2,
+            }}
+          >
+            {/* Autocomplete for filtering by majors */}
+            <Autocomplete
+              multiple
+              options={majorsList} // Pass the majors list as options
+              getOptionLabel={(option) => option}
+              value={selectedMajors} // Selected majors state
+              onChange={(event, newValue) => setSelectedMajors(newValue)} // Update selected majors
+              renderInput={(params) => (
+                <TextField {...params} label="Filter by Major(s)" variant="outlined" />
+              )}
+              sx={{ flex: 1, mb: 2, minWidth: 200 }}
+            />
+            {/* Autocomplete for filtering by year */}
+            <Autocomplete
+              multiple
+              options={['Freshman', 'Sophomore', 'Junior', 'Senior', 'Master', 'PhD']}
+              getOptionLabel={(option) => option}
+              value={selectedYears} // Selected majors state
+              onChange={(event, newValue) => setSelectedYears(newValue)} // Update selected years
+              renderInput={(params) => (
+                <TextField {...params} label="Filter by Year(s)" variant="outlined" />
+              )}
+              sx={{ flex: 1, mb: 2, minWidth: 200 }}
+            />
+            {/* TODO: Autocomplete for filtering by courses */}
+          </Box>
+
           <Stack spacing={2}>
             {studentData
               .filter(
-                (profile) => profile.uid !== userProfile.uid && !matchedUserUids.has(profile.uid),
+                (profile) =>
+                  profile.uid !== userProfile.uid &&
+                  !matchedUserUids.has(profile.uid) &&
+                  (selectedMajors.length === 0 || selectedMajors.includes(profile.major)) &&
+                  (selectedYears.length === 0 || selectedYears.includes(profile.year)),
               )
               .map((profile, index) => {
                 const requested = requestedUsers.has(profile.uid);
