@@ -95,7 +95,7 @@ export default function StudentList() {
               top: 64, // Stick at the top of the screen, adjust as needed if there's a header
               zIndex: 1000, // Ensure it's on top of other elements
               backgroundColor: 'white', // Ensure background covers other content
-              display: 'flex',
+              display: { xs: 'block', md: 'flex' },
               gap: 2,
             }}
           >
