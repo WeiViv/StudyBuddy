@@ -16,6 +16,7 @@ export default function StudentCard({ studentUserProfile, actions }) {
     <Card
       sx={{
         backgroundColor: lighten(theme.palette.primary.light, 0.8),
+        borderRadius: '16px', //  to make the card rounder
       }}
     >
       <CardHeader
@@ -74,6 +75,10 @@ export default function StudentCard({ studentUserProfile, actions }) {
               variant={action.variant || 'contained'}
               color={action.color || 'primary'}
               onClick={action.onClick}
+              sx={{
+                borderRadius: '12px',
+                margin: 2,
+              }} // This makes the button rounder
             >
               {action.label}
             </Button>

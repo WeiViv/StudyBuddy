@@ -31,7 +31,8 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
       <Card
         sx={{
           backgroundColor: lighten(theme.palette.primary.light, 0.8),
-          width: '100%', // Full width for mobile screens
+          borderRadius: '16px', //  to make the card rounder
+          width: '100%',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: 3,
@@ -92,7 +93,14 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
           }}
         >
           {onEditClick && (
-            <Button variant="contained" onClick={onEditClick} sx={{ marginRight: 1 }}>
+            <Button
+              variant="contained"
+              onClick={onEditClick}
+              sx={{
+                borderRadius: '12px',
+                margin: 2,
+              }}
+            >
               Edit Profile
             </Button>
           )}
@@ -100,7 +108,12 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
             <Button
               variant="contained"
               color="secondary"
-              sx={{ backgroundColor: '#D2042D', ':hover': { backgroundColor: '#ff6666' } }}
+              sx={{
+                backgroundColor: '#D2042D',
+                ':hover': { backgroundColor: '#ff6666' },
+                borderRadius: '12px',
+                margin: 2,
+              }}
               onClick={onSignOutClick}
             >
               Sign Out
