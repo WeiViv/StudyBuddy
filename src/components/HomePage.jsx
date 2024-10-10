@@ -33,13 +33,25 @@ export default function HomePage() {
   }
 
   return (
-    <Box>
-      <StudentFilter
-        selectedMajors={selectedMajors}
-        setSelectedMajors={setSelectedMajors}
-        selectedYears={selectedYears}
-        setSelectedYears={setSelectedYears}
-      />
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 60,
+          zIndex: 10,
+          backgroundColor: 'white',
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+          padding: 1,
+          marginBottom: 2,
+        }}
+      >
+        <StudentFilter
+          selectedMajors={selectedMajors}
+          setSelectedMajors={setSelectedMajors}
+          selectedYears={selectedYears}
+          setSelectedYears={setSelectedYears}
+        />
+      </Box>
       <StudentList
         userProfile={userProfile}
         requestedUsers={requestedUsers}
