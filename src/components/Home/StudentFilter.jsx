@@ -24,6 +24,7 @@ export default function StudentFilter({
 
   return (
     <Box sx={{ display: { xs: 'block', md: 'flex' }, gap: 2, mb: 2 }}>
+      {/* 1. Major filter */}
       <Autocomplete
         multiple
         options={majorsList}
@@ -35,6 +36,8 @@ export default function StudentFilter({
         )}
         sx={{ flex: 1, mb: 2, minWidth: 200, maxWidth: '100%' }}
       />
+
+      {/* 2. Year filter */}
       <FormControl sx={{ flex: 1, mb: 2, minWidth: 200, maxWidth: '100%' }}>
         <InputLabel>Filter by Year(s)</InputLabel>
         <Select
@@ -57,6 +60,8 @@ export default function StudentFilter({
           ))}
         </Select>
       </FormControl>
+
+      {/* 3. Course filter */}
     </Box>
   );
 }

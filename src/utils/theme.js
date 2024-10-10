@@ -12,4 +12,7 @@ export const theme = createTheme({
       main: '#f44336',
     },
   },
+  typography: {
+    fontFamily: 'Poppins, Roboto, sans-serif',
+  },
 });

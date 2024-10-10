@@ -58,7 +58,7 @@ export default function StudentList({
         </Stack>
       ) : (
         <Typography variant="h6" color="textSecondary" align="center">
-          Please log in to view.
+          No students found.
         </Typography>
       )}
     </Box>
