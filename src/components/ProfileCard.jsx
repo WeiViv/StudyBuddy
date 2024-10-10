@@ -1,18 +1,10 @@
 import React from 'react';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardActions,
-  Typography,
-  Avatar,
-  Button,
-} from '@mui/material';
+import { Card, CardContent, CardHeader, Typography, Avatar } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { lighten } from '@mui/system';
 
-export default function ProfileCard({ profileData, onEditClick, onSignOutClick }) {
+export default function ProfileCard({ profileData }) {
   const theme = useTheme();
   // Defining a common style for the profile details text
   const detailsTextStyle = {
@@ -86,40 +78,6 @@ export default function ProfileCard({ profileData, onEditClick, onSignOutClick }
             <strong>Description:</strong> {profileData?.description}
           </Typography>
         </CardContent>
-        <CardActions
-          sx={{
-            justifyContent: 'flex-end',
-            padding: 2,
-          }}
-        >
-          {onEditClick && (
-            <Button
-              variant="contained"
-              onClick={onEditClick}
-              sx={{
-                borderRadius: '12px',
-                margin: 2,
-              }}
-            >
-              Edit Profile
-            </Button>
-          )}
-          {onSignOutClick && (
-            <Button
-              variant="contained"
-              color="secondary"
-              sx={{
-                backgroundColor: '#D2042D',
-                ':hover': { backgroundColor: '#ff6666' },
-                borderRadius: '12px',
-                margin: 2,
-              }}
-              onClick={onSignOutClick}
-            >
-              Sign Out
-            </Button>
-          )}
-        </CardActions>
       </Card>
     </div>
   );
