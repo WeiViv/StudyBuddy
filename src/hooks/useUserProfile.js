@@ -25,6 +25,9 @@ export default function useUserProfile(user) {
       };
 
       fetchUserProfileData();
+    } else {
+      setUserProfile(null);
+      setLoading(false);
     }
   }, [user]);
 
