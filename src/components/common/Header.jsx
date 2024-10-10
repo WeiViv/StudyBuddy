@@ -9,6 +9,8 @@ export default function Header() {
   const { user, handleProfileClick, signInAndCheckFirstTimeUser } = useAuthNavigation();
   const theme = useTheme();
 
+  const isProfilePage = window.location.pathname.includes('/profile/');
+
   return (
     <AppBar position="sticky" sx={{ backgroundColor: theme.palette.primary.light, color: '#000' }}>
       <Toolbar sx={{ position: 'relative', justifyContent: 'space-between' }}>
@@ -30,14 +32,18 @@ export default function Header() {
         </Typography>
 
         {/* Right side: Sign In button or user avatar */}
-        {user ? (
-          <IconButton edge="end" color="inherit" onClick={handleProfileClick}>
-            <Avatar alt={user.displayName} src={user.photoURL} />
-          </IconButton>
+        {!isProfilePage ? (
+          user ? (
+            <IconButton edge="end" color="inherit" onClick={handleProfileClick}>
+              <Avatar alt={user.displayName} src={user.photoURL} />
+            </IconButton>
+          ) : (
+            <Button color="inherit" onClick={signInAndCheckFirstTimeUser}>
+              Sign In
+            </Button>
+          )
         ) : (
-          <Button color="inherit" onClick={signInAndCheckFirstTimeUser}>
-            Sign In
-          </Button>
+          <Box sx={{ width: '48px' }} />
         )}
       </Toolbar>
     </AppBar>
