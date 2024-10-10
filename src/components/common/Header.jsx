@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ArrowBack } from '@mui/icons-material';
 import { AppBar, Toolbar, Typography, IconButton, Avatar, Button, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -10,12 +11,22 @@ export default function Header() {
   const theme = useTheme();
 
   const isProfilePage = window.location.pathname.includes('/profile/');
+  const isRootPage =
+    window.location.pathname === '/' ||
+    window.location.pathname === '/groups' ||
+    window.location.pathname === '/messages';
 
   return (
     <AppBar position="sticky" sx={{ backgroundColor: theme.palette.primary.light, color: '#000' }}>
       <Toolbar sx={{ position: 'relative', justifyContent: 'space-between' }}>
         {/* Left side: placeholder to keep spacing consistent */}
-        <Box sx={{ width: '48px' }} />
+        {!isRootPage ? (
+          <IconButton edge="start" color="inherit" onClick={() => window.history.back()}>
+            <ArrowBack />
+          </IconButton>
+        ) : (
+          <Box sx={{ width: '48px' }} />
+        )}
 
         {/* Centered text */}
         <Typography
