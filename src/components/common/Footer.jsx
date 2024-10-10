@@ -1,11 +1,13 @@
-import * as React from 'react';
+import React from 'react';
 
 import GroupsIcon from '@mui/icons-material/Groups';
 import HomeIcon from '@mui/icons-material/Home';
-import MessageIcon from '@mui/icons-material/Message';
 import { Box, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+
+// import MessageIcon from '@mui/icons-material/Message';
+import { navigateToPage } from '../../utils/navigateToPage';
 
 export default function Footer({ currentPage, setCurrentPage }) {
   const navigate = useNavigate();
@@ -18,23 +20,9 @@ export default function Footer({ currentPage, setCurrentPage }) {
         value={currentPage}
         onChange={(event, newValue) => {
           setCurrentPage(newValue);
-          switch (newValue) {
-            case 0:
-              navigate('/');
-              break;
-            case 1:
-              navigate('/groups');
-              break;
-            // case 2:
-            //   navigate('/messages');
-            //   break;
-            default:
-              break;
-          }
+          navigateToPage(navigate, newValue);
         }}
-        sx={{
-          backgroundColor: theme.palette.primary.light,
-        }}
+        sx={{ backgroundColor: theme.palette.primary.light }}
       >
         <BottomNavigationAction label="Home" icon={<HomeIcon />} />
         <BottomNavigationAction label="Groups" icon={<GroupsIcon />} />
