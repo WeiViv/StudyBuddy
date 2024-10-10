@@ -8,7 +8,6 @@ import {
   Autocomplete,
   IconButton,
   MenuItem,
-  Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,7 +34,7 @@ const EditProfile = () => {
     e.preventDefault();
     const success = await handleSubmit(user.uid);
     if (success) {
-      navigate('/');
+      navigate(`/profile/${user.uid}`, { state: { fromEditProfile: true } });
     }
   };
 
@@ -48,7 +47,7 @@ const EditProfile = () => {
       {firstTimeUser && (
         <IconButton
           style={{ position: 'absolute', top: '2px', left: '2px', zIndex: 10 }}
-          onClick={() => navigate(`/profile/${user.uid}`)}
+          onClick={() => navigate(`/profile/${user.uid}`, { state: { fromEditProfile: true } })}
         >
           <ArrowBackIcon />
         </IconButton>

@@ -3,25 +3,39 @@ import React from 'react';
 import { ArrowBack } from '@mui/icons-material';
 import { AppBar, Toolbar, Typography, IconButton, Avatar, Button, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuthNavigation } from '../../hooks/useAuthNavigation';
 
 export default function Header() {
   const { user, handleProfileClick, signInAndCheckFirstTimeUser } = useAuthNavigation();
   const theme = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const isProfilePage = window.location.pathname.includes('/profile/');
+  const isProfilePage = location.pathname.includes('/profile/');
   const isRootPage =
-    window.location.pathname === '/' ||
-    window.location.pathname === '/groups' ||
-    window.location.pathname === '/messages';
+    location.pathname === '/' ||
+    location.pathname === '/groups' ||
+    location.pathname === '/messages';
+
+  const handleBackButtonClick = () => {
+    // If we came from edit-profile or a similar page, navigate home instead of going back.
+    if (location.state?.fromEditProfile) {
+      navigate('/'); // Redirect to the home page
+    } else if (window.history.length > 2) {
+      navigate(-1); // Go back to the previous page in the history stack if available
+    } else {
+      navigate('/'); // Otherwise, redirect to the home page
+    }
+  };
 
   return (
     <AppBar position="sticky" sx={{ backgroundColor: theme.palette.primary.light, color: '#000' }}>
       <Toolbar sx={{ position: 'relative', justifyContent: 'space-between' }}>
-        {/* Left side: placeholder to keep spacing consistent */}
+        {/* Left side: Back button or placeholder */}
         {!isRootPage ? (
-          <IconButton edge="start" color="inherit" onClick={() => window.history.back()}>
+          <IconButton edge="start" color="inherit" onClick={handleBackButtonClick}>
             <ArrowBack />
           </IconButton>
         ) : (
