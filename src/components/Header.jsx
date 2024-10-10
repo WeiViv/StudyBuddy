@@ -29,11 +29,6 @@ export default function Header() {
   return (
     <AppBar position="sticky" sx={{ backgroundColor: theme.palette.primary.light, color: '#000' }}>
       <Toolbar>
-        {/* Menu Icon (Left) */}
-        <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-          <MenuIcon />
-        </IconButton>
-
         {/* App Name */}
         <Typography
           variant="h6"

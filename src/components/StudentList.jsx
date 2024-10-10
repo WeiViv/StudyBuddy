@@ -107,7 +107,20 @@ export default function StudentList() {
               value={selectedMajors} // Selected majors state
               onChange={(event, newValue) => setSelectedMajors(newValue)} // Update selected majors
               renderInput={(params) => (
-                <TextField {...params} label="Filter by Major(s)" variant="outlined" />
+                <TextField
+                  {...params}
+                  label="Filter by Major(s)"
+                  variant="outlined"
+                  sx={{
+                    flex: 1,
+                    mb: 2,
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '15px', // Rounds the edges of the input field
+                      border: '1px solid #ddd', // Optional: Adds a border to highlight the rounded effect
+                    },
+                  }}
+                />
               )}
               sx={{ flex: 1, mb: 2, minWidth: 200 }}
             />
@@ -119,7 +132,20 @@ export default function StudentList() {
               value={selectedYears} // Selected majors state
               onChange={(event, newValue) => setSelectedYears(newValue)} // Update selected years
               renderInput={(params) => (
-                <TextField {...params} label="Filter by Year(s)" variant="outlined" />
+                <TextField
+                  {...params}
+                  label="Filter by Year(s)"
+                  variant="outlined"
+                  sx={{
+                    flex: 1,
+                    mb: 2,
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '15px', // Rounds the edges of the input field
+                      border: '1px solid #ddd', // Optional: Adds a border to highlight the rounded effect
+                    },
+                  }}
+                />
               )}
               sx={{ flex: 1, mb: 2, minWidth: 200 }}
             />
