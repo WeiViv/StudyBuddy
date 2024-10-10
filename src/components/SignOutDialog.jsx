@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-import { handleSignOut } from '../utils/firebase';
+import { handleSignOut } from '../utils/auth';
 
 export default function SignOutDialog({ open, onClose }) {
   const navigate = useNavigate();

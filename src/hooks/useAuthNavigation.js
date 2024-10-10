@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useAuthState, handleSignIn } from '../utils/firebase';
+import { useAuthState } from './useAuthState';
+import { handleSignIn } from '../utils/auth';
 
 export const useAuthNavigation = () => {
   const [user] = useAuthState();

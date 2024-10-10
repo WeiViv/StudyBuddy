@@ -4,8 +4,8 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 
 import StudentFilter from './Home/StudentFilter';
 import StudentList from './Home/StudentList';
+import { useAuthState } from '../hooks/useAuthState';
 import useUserProfile from '../hooks/useUserProfile';
-import { useAuthState } from '../utils/firebase';
 
 export default function HomePage() {
   const [user] = useAuthState();

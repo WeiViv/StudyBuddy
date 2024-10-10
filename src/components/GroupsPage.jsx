@@ -4,7 +4,7 @@ import { Box, Stack, Typography, Modal } from '@mui/material';
 
 import ProfileCard from './ProfileCard';
 import StudentCard from './UserCard';
-import { useAuthState } from '../utils/firebase';
+import { useAuthState } from '../hooks/useAuthState';
 import { getUserProfile, resolveMatchRequest, getUserMatches } from '../utils/firestore';
 
 function GroupsPage() {

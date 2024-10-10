@@ -11,8 +11,8 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuthState } from '../hooks/useAuthState';
 import useEditProfileForm from '../hooks/useEditProfileForm';
-import { useAuthState } from '../utils/firebase';
 
 const EditProfile = () => {
   const [user] = useAuthState();

@@ -10,7 +10,8 @@ import {
   arrayRemove,
 } from 'firebase/firestore';
 
-import { db } from './firebase'; // import db from the firebase.js
+// Import the Firestore database
+import { db } from './firebaseConfig';
 
 // Check user profile in Firestore
 export const checkUserProfile = async (user) => {
