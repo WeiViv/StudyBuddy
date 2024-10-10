@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { Box, Stack, Typography } from '@mui/material';
 
-import { getAllUsers, createMatch } from '../../utils/firestore';
+import usePagination from '../../hooks/usePagination';
+import useStudentData from '../../hooks/useStudentData';
+import { createMatch } from '../../utils/firestore';
+import CustomPagination from '../common/CustomPagination';
 import StudentCard from '../UserCard';
 
 export default function StudentList({
@@ -13,19 +16,22 @@ export default function StudentList({
   selectedMajors,
   selectedYears,
 }) {
-  const [studentData, setStudentData] = useState(null);
+  const studentData = useStudentData();
 
-  useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const students = await getAllUsers();
-        setStudentData(students);
-      } catch (error) {
-        console.error('Error fetching student data:', error);
-      }
-    };
-    fetchStudentData();
-  }, []);
+  const filteredStudentData = studentData?.filter(
+    (profile) =>
+      profile.uid !== userProfile.uid &&
+      !matchedUserUids.has(profile.uid) &&
+      (selectedMajors.length === 0 || selectedMajors.includes(profile.major)) &&
+      (selectedYears.length === 0 || selectedYears.includes(profile.year)),
+  );
+
+  const {
+    currentData: studentsToDisplay,
+    currentPage,
+    totalPages,
+    handlePageChange,
+  } = usePagination(filteredStudentData, 10);
 
   const handleMatch = async (studentUserProfile) => {
     try {
@@ -36,19 +42,11 @@ export default function StudentList({
     }
   };
 
-  const filteredStudentData = studentData?.filter(
-    (profile) =>
-      profile.uid !== userProfile.uid &&
-      !matchedUserUids.has(profile.uid) &&
-      (selectedMajors.length === 0 || selectedMajors.includes(profile.major)) &&
-      (selectedYears.length === 0 || selectedYears.includes(profile.year)),
-  );
-
   return (
     <Box>
-      {userProfile && filteredStudentData ? (
+      {userProfile && studentsToDisplay?.length > 0 ? (
         <Stack spacing={2}>
-          {filteredStudentData.map((profile, index) => {
+          {studentsToDisplay.map((profile, index) => {
             const requested = requestedUsers.has(profile.uid);
             const actions = requested
               ? [{ label: 'Requested', variant: 'outlined', color: 'default', onClick: () => {} }]
@@ -60,6 +58,15 @@ export default function StudentList({
         <Typography variant="h6" color="textSecondary" align="center">
           No students found.
         </Typography>
+      )}
+
+      {/* Custom Pagination Component */}
+      {filteredStudentData && filteredStudentData.length > 10 && (
+        <CustomPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
     </Box>
   );
