@@ -12,9 +12,14 @@ import { db } from '../firebaseConfig';
 
 // Utility function to fetch a match document by ID
 const fetchMatchDocument = async (matchId) => {
-  const matchDocRef = doc(db, 'matches', matchId);
-  const matchSnapshot = await getDoc(matchDocRef);
-  return matchSnapshot.exists() ? matchSnapshot.data() : null;
+  try {
+    const matchDocRef = doc(db, 'matches', matchId);
+    const matchSnapshot = await getDoc(matchDocRef);
+    return matchSnapshot.exists() ? matchSnapshot.data() : null;
+  } catch (error) {
+    console.error('Error fetching match document:', error);
+    return null;
+  }
 };
 
 // Create a new match
@@ -71,15 +76,6 @@ export const createMatch = async (users, location, description = '') => {
   }
 };
 
-// Fetch match by ID
-export const getMatch = async (matchId) => {
-  try {
-    return await fetchMatchDocument(matchId);
-  } catch (error) {
-    console.error('Error fetching match:', error);
-  }
-};
-
 // Get all user matches
 export const getUserMatches = async (uid) => {
   try {
@@ -92,16 +88,21 @@ export const getUserMatches = async (uid) => {
     const { currentMatches } = userSnapshot.data();
     if (!currentMatches || currentMatches.length === 0) return [];
 
+    // Fetch each match and gather the profiles of other users in the match
     const matchProfiles = await Promise.all(
       currentMatches.map(async (matchId) => {
         const matchData = await fetchMatchDocument(matchId);
         if (!matchData) return null;
 
+        // Get all users in the match except the current user
         const otherUsers = matchData.users.filter((user) => user.uid !== uid);
-        return await Promise.all(
-          // Pass empty transaction object if not using transactions
-          otherUsers.map(async (user) => fetchUserProfile(user.uid, {})),
+        const profiles = await Promise.all(
+          otherUsers.map(async (user) => {
+            const { profile } = await fetchUserProfile(user.uid);
+            return profile || null;
+          }),
         );
+        return profiles.filter((profile) => profile !== null);
       }),
     );
 

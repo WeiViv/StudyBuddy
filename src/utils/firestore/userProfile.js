@@ -12,7 +12,7 @@ export const fetchUserProfile = async (uid, transaction) => {
 
     if (!userSnapshot.exists()) {
       console.warn(`User profile for ${uid} does not exist`);
-      return { ref: userRef, profile: null }; // Ensure a consistent return format
+      return { ref: userRef, profile: null }; // Return consistent format with null profile
     }
 
     return { ref: userRef, profile: userSnapshot.data() };
@@ -29,7 +29,7 @@ export const checkUserProfile = async (user) => {
     const defaultProfile = {
       uid,
       profilePic: photoURL || '',
-      name: displayName || 'Anonymous',
+      name: displayName || '',
       email: email || '',
       phoneNumber: phoneNumber || '',
       major: '',
@@ -43,15 +43,17 @@ export const checkUserProfile = async (user) => {
       pastMatches: [],
     };
 
-    const fetchedUser = await fetchUserProfile(uid);
-    if (!fetchedUser) {
-      // Create a new profile if it doesn't exist
+    // Fetch the user profile to check if it exists
+    const { profile } = await fetchUserProfile(uid);
+
+    // If the profile does not exist, create it with the default data
+    if (!profile) {
       await setDoc(doc(db, 'users', uid), defaultProfile);
-      console.log('User profile created');
+      console.log('New user profile created with default data.');
       return false; // Return false indicating a new user profile was created
     }
 
-    const existingProfile = fetchedUser.profile;
+    const existingProfile = profile;
     const updates = {};
 
     // Check for missing or outdated fields in the user's profile
@@ -66,8 +68,9 @@ export const checkUserProfile = async (user) => {
     // If updates are required, update the user profile in Firestore
     if (Object.keys(updates).length > 0) {
       await updateUserProfile(uid, updates);
-      console.log('User profile updated with missing attributes');
+      console.log('User profile updated with missing attributes.');
     }
+
     return true; // Return true indicating the user profile already existed
   } catch (error) {
     console.error('Error checking or creating user profile:', error);

@@ -1,84 +1,87 @@
 import React from 'react';
 
-import { Card, CardContent, CardHeader, Typography, Avatar } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { lighten } from '@mui/system';
+import { Avatar, Box, Card, CardContent, CardHeader, Modal, Typography } from '@mui/material';
+import { useTheme, lighten } from '@mui/system';
 
-export default function ProfileCard({ profileData }) {
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+
+export default function ProfileCard({ profileData, open, onClose }) {
   const theme = useTheme();
-  // Defining a common style for the profile details text
-  const detailsTextStyle = {
-    color: 'rgba(0, 0, 0, 0.7)',
-    fontSize: '1rem',
-  };
+  const { handleCopyToClipboard, SnackbarComponent } = useCopyToClipboard();
+
+  // Helper function to render profile details fields with better styling
+  const renderProfileDetail = (label, value, isCopyable = false) => (
+    <Box sx={{ mb: 1 }}>
+      <Typography
+        variant="subtitle2"
+        color="textPrimary"
+        sx={{ display: 'inline', fontWeight: 500 }}
+      >
+        {label}:
+      </Typography>{' '}
+      <Typography
+        variant="body1"
+        sx={{
+          display: 'inline',
+          color: theme.palette.text.secondary,
+          textDecoration: isCopyable ? 'underline' : 'none',
+        }}
+        onClick={() => isCopyable && value && handleCopyToClipboard(value)}
+      >
+        {value || 'N/A'}
+      </Typography>
+    </Box>
+  );
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%', // Ensures the parent div takes the full width of the screen
-      }}
-    >
-      <Card
-        sx={{
-          backgroundColor: lighten(theme.palette.primary.light, 0.8),
-          borderRadius: '16px', //  to make the card rounder
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: 3,
-          padding: 0.2,
-        }}
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="profile-modal-title"
+        aria-describedby="profile-modal-description"
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}
       >
-        <CardHeader
-          avatar={
-            <Avatar
-              sx={{ bgcolor: '#4E2A84', width: 56, height: 56 }}
-              src={profileData?.profilePic || ''} // Use Google profile picture if available
-              alt={profileData?.name}
-            >
-              {!profileData?.photoURL && (profileData?.name?.[0] || '')}{' '}
-              {/* Display initial if there is no Google photo */}
-            </Avatar>
-          }
-          title={
-            <Typography
-              variant="h5"
-              component="div"
-              sx={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: '540', fontSize: '1.6rem' }}
-            >
-              {profileData?.name}
-            </Typography>
-          }
-          // subheader={
-          //   <Typography
-          //     variant="subtitle2"
-          //     component="div"
-          //     sx={{ color: 'rgba(0, 0, 0, 0.7)', fontSize: '1.1rem' }}
-          //   >
-          //     {profileData?.major}
-          //   </Typography>
-          // }
-        />
-        <CardContent>
-          <Typography variant="body1" sx={detailsTextStyle}>
-            <strong>Email:</strong> {profileData?.email}
-          </Typography>
-          <Typography variant="body1" sx={detailsTextStyle}>
-            <strong>Phone Number:</strong> {profileData?.phoneNumber}
-          </Typography>
-          <Typography variant="body1" sx={detailsTextStyle}>
-            <strong>Major:</strong> {profileData?.major}
-          </Typography>
-          <Typography variant="body1" sx={detailsTextStyle}>
-            <strong>Year:</strong> {profileData?.year}
-          </Typography>
-          <Typography variant="body1" sx={detailsTextStyle}>
-            <strong>Description:</strong> {profileData?.description}
-          </Typography>
-        </CardContent>
-      </Card>
-    </div>
+        <Card
+          sx={{
+            backgroundColor: lighten(theme.palette.primary.light, 0.8),
+            borderRadius: 2,
+            width: '100%',
+            maxWidth: 500,
+            boxShadow: 3,
+            overflow: 'hidden',
+            paddingY: 1,
+            paddingX: 3,
+          }}
+        >
+          <CardHeader
+            avatar={
+              <Avatar
+                sx={{ width: 56, height: 56 }}
+                src={profileData?.profilePic || ''}
+                alt={profileData?.name || 'Profile Picture'}
+              >
+                {profileData?.name?.[0] || ''}
+              </Avatar>
+            }
+            title={
+              <Typography variant="h5" fontWeight="600">
+                {profileData?.name || 'Unknown User'}
+              </Typography>
+            }
+          />
+          <CardContent sx={{ padding: 2 }}>
+            {renderProfileDetail('Email', profileData?.email, true)}
+            {renderProfileDetail('Phone Number', profileData?.phoneNumber, true)}
+            {renderProfileDetail('Major', profileData?.major)}
+            {renderProfileDetail('Year', profileData?.year)}
+            {renderProfileDetail('Bio', profileData?.description)}
+          </CardContent>
+        </Card>
+      </Modal>
+
+      {/* Snackbar for copy confirmation */}
+      <SnackbarComponent />
+    </>
   );
 }

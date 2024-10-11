@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 import StudentFilter from './Home/StudentFilter';
 import StudentList from './Home/StudentList';
@@ -13,6 +14,14 @@ export default function HomePage() {
     useUserProfile(user);
   const [selectedMajors, setSelectedMajors] = useState([]);
   const [selectedYears, setSelectedYears] = useState([]);
+  const navigate = useNavigate();
+
+  // Redirect user to edit-profile if the profile is incomplete
+  useEffect(() => {
+    if (userProfile && (!userProfile.major || !userProfile.year || !userProfile.phoneNumber)) {
+      navigate('/edit-profile');
+    }
+  }, [userProfile, navigate]);
 
   if (loading) {
     return (
@@ -30,6 +39,11 @@ export default function HomePage() {
         </Typography>
       </Box>
     );
+  }
+
+  // Render the StudentFilter and StudentList only if the userProfile is complete
+  if (!userProfile || !userProfile.major || !userProfile.year || !userProfile.phoneNumber) {
+    return null;
   }
 
   return (
