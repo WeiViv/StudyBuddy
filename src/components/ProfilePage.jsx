@@ -44,13 +44,13 @@ export default function ProfilePage() {
       <InfoSection title="Contact Info">
         <ContentBox icon={Email} title="Email" content={profileData?.email} />
         <CustomDivider />
-        <ContentBox icon={Phone} title="Phone" content={profileData?.phone} />
+        <ContentBox icon={Phone} title="Phone" content={profileData?.phoneNumber} />
       </InfoSection>
 
       {/* Bio Section */}
       <InfoSection title="Bio">
         <Typography variant="body2" color="textSecondary">
-          {profileData?.bio}
+          {profileData?.description}
         </Typography>
       </InfoSection>
 
