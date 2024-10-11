@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  Chip,
   useTheme,
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -37,36 +38,30 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ maxWidth: 700, margin: 'auto', padding: 1.5 }}>
-      {/* Profile Header with Avatar and Name */}
       <ProfileHeader name={profileData?.name} profilePic={profileData?.profilePic} />
 
-      {/* Contact Info Section */}
       <InfoSection title="Contact Info">
         <ContentBox icon={Email} title="Email" content={profileData?.email} />
         <CustomDivider />
         <ContentBox icon={Phone} title="Phone" content={profileData?.phoneNumber} />
       </InfoSection>
 
-      {/* Bio Section */}
       <InfoSection title="Bio">
         <Typography variant="body2" color="textSecondary">
           {profileData?.description}
         </Typography>
       </InfoSection>
 
-      {/* Study Info Section */}
       <InfoSection title="Study Info">
         <ContentBox icon={CalendarToday} title="Year" content={profileData?.year} />
         <CustomDivider />
         <ContentBox icon={School} title="Major" content={profileData?.major} />
         <CustomDivider />
-        <ContentBox icon={ListAlt} title="Courses" content={profileData?.courses} />
+        <ContentBox icon={ListAlt} title="Courses" content={profileData?.listOfCourses} isCourses />
       </InfoSection>
 
-      {/* Edit and Sign Out Buttons */}
       <ActionButtons onEditClick={handleEditClick} onSignOutClick={handleSignOutDialogOpen} />
 
-      {/* Sign Out Confirmation Dialog */}
       <SignOutDialog open={signOutDialogOpen} onClose={() => setSignOutDialogOpen(false)} />
     </Box>
   );
@@ -101,15 +96,23 @@ const InfoSection = ({ title, children }) => (
   </>
 );
 
-const ContentBox = ({ icon: IconComponent, title, content }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+const ContentBox = ({ icon: IconComponent, title, content, isCourses = false }) => (
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <IconComponent sx={{ mr: 1, color: 'grey.600' }} />
-      <Typography variant="body2" color="textSecondary">
+      <Typography variant="body2" color="textSecondary" sx={{ mr: 1 }}>
         {title}
       </Typography>
     </Box>
-    <Typography variant="body2">{content}</Typography>
+    {isCourses && Array.isArray(content) ? (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        {content.map((course, index) => (
+          <Chip key={index} label={course} />
+        ))}
+      </Box>
+    ) : (
+      <Typography variant="body2">{content}</Typography>
+    )}
   </Box>
 );
 
