@@ -4,7 +4,7 @@ import { Box, Stack, Typography } from '@mui/material';
 
 import usePagination from '../../hooks/usePagination';
 import useStudentData from '../../hooks/useStudentData';
-import { createMatch } from '../../utils/firestore';
+import { createMatch } from '../../utils/firestore/matches';
 import CustomPagination from '../common/CustomPagination';
 import StudentCard from '../UserCard';
 

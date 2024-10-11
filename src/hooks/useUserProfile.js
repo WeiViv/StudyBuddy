@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { getUserProfile, getMatchedUserUids } from '../utils/firestore';
+import { getMatchedUserUids } from '../utils/firestore/matches';
+import { fetchUserProfile } from '../utils/firestore/userProfile';
 
 export default function useUserProfile(user) {
   const [userProfile, setUserProfile] = useState(null);
@@ -12,12 +13,20 @@ export default function useUserProfile(user) {
     if (user) {
       const fetchUserProfileData = async () => {
         try {
-          const profile = await getUserProfile(user.uid);
-          setUserProfile(profile);
-          setRequestedUsers(new Set(profile.outgoingMatches.map((match) => match.requestedUser)));
+          // Fetch user profile using the unified function
+          const { profile } = await fetchUserProfile(user.uid);
 
-          const matchedUids = await getMatchedUserUids(user.uid);
-          setMatchedUserUids(new Set(matchedUids));
+          if (profile) {
+            setUserProfile(profile);
+            setRequestedUsers(new Set(profile.outgoingMatches.map((match) => match.requestedUser)));
+
+            const matchedUids = await getMatchedUserUids(user.uid);
+            setMatchedUserUids(new Set(matchedUids));
+          } else {
+            // Handle the case where profile is not found
+            console.warn('User profile does not exist.');
+            setUserProfile(null);
+          }
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }

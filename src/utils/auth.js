@@ -1,7 +1,7 @@
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 import { auth } from './firebaseConfig';
-import { checkUserProfile } from './firestore';
+import { checkUserProfile } from './firestore/userProfile';
 
 const provider = new GoogleAuthProvider();
 

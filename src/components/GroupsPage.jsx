@@ -1,36 +1,20 @@
 import { useState, useEffect } from 'react';
 
-import { Box, Stack, Typography, Modal } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
-import ProfileCard from './ProfileCard';
 import StudentCard from './UserCard';
 import { useAuthState } from '../hooks/useAuthState';
-import { getUserProfile, resolveMatchRequest, getUserMatches } from '../utils/firestore';
+import useUserProfile from '../hooks/useUserProfile';
+import { resolveMatchRequest, getUserMatches } from '../utils/firestore/matches';
+import { fetchUserProfile } from '../utils/firestore/userProfile';
 
 function GroupsPage() {
   const [user] = useAuthState();
-  const [userProfile, setUserProfile] = useState(null);
+  const { userProfile, loading } = useUserProfile(user);
   const [incomingRequestProfiles, setIncomingRequestProfiles] = useState([]);
   const [outgoingRequestProfiles, setOutgoingRequestProfiles] = useState([]);
   const [matchProfiles, setMatchProfiles] = useState([]);
-  const [openProfileModal, setOpenProfileModal] = useState(false); // State for modal visibility
   const [selectedProfile, setSelectedProfile] = useState(null); // State for selected user profile
-
-  // Fetch the user's profile
-  useEffect(() => {
-    if (user) {
-      const fetchUserProfile = async () => {
-        try {
-          const profile = await getUserProfile(user.uid);
-          setUserProfile(profile);
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-        }
-      };
-
-      fetchUserProfile();
-    }
-  }, [user]);
 
   // Combined useEffect for fetching incoming, outgoing, and current matches
   useEffect(() => {
@@ -41,7 +25,7 @@ function GroupsPage() {
         // Fetch incoming request profiles
         const incomingProfilesPromise = Promise.all(
           (userProfile.incomingMatches || []).map(async (req) => {
-            const profile = await getUserProfile(req.requestingUser);
+            const { profile } = await fetchUserProfile(req.requestingUser);
             return { ...profile, matchId: req.matchId };
           }),
         );
@@ -49,7 +33,7 @@ function GroupsPage() {
         // Fetch outgoing request profiles
         const outgoingProfilesPromise = Promise.all(
           (userProfile.outgoingMatches || []).map(async (req) => {
-            const profile = await getUserProfile(req.requestedUser);
+            const { profile } = await fetchUserProfile(req.requestedUser);
             return profile;
           }),
         );
@@ -92,14 +76,9 @@ function GroupsPage() {
     }
   };
 
-  const handleOpenProfileModal = (profile) => {
-    setSelectedProfile(profile);
-    setOpenProfileModal(true);
-  };
-
-  const handleCloseProfileModal = () => {
-    setOpenProfileModal(false);
-  };
+  if (loading) {
+    return <Typography variant="h6">Loading...</Typography>;
+  }
 
   return (
     <>
@@ -113,7 +92,7 @@ function GroupsPage() {
                   {
                     label: 'View Profile',
                     // Allow users to see profile of matches
-                    onClick: () => handleOpenProfileModal(profile),
+                    onClick: () => setSelectedProfile(profile),
                   },
                 ];
                 return <StudentCard key={index} studentUserProfile={profile} actions={actions} />;
@@ -124,18 +103,6 @@ function GroupsPage() {
               </Typography>
             )}
           </Stack>
-
-          {/* Modal for displaying the selected profile */}
-          <Modal
-            open={openProfileModal}
-            onClose={handleCloseProfileModal}
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-          >
-            <Box sx={{ p: 3 }}>
-              <ProfileCard profileData={selectedProfile} />
-            </Box>
-          </Modal>
 
           <h1>Incoming Requests</h1>
           <Stack spacing={2}>
